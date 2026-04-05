@@ -32,7 +32,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Step 2: Configure AWS
+      # ✅ Step 2: Debug workspace (VERY IMPORTANT)
+      - name: Debug files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files:"
+          ls -la
+
+      # ✅ Step 3: Configure AWS
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -40,41 +48,55 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # ✅ Step 3: Login to ECR
+      # ✅ Step 4: Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # ✅ Step 4: Build, Tag, Push
+      # ✅ Step 5: Build, Tag, Push (FAIL-SAFE VERSION)
       - name: Build, tag, and push Docker image
+        shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
+          set -e   # ❗ fail immediately if any command fails
+
           echo "===== DEBUG INFO ====="
           echo "Registry: $ECR_REGISTRY"
           echo "Repository: $ECR_REPOSITORY"
           echo "Tag: $IMAGE_TAG"
           echo "======================"
 
-          # Build Docker image
+          # ❗ Check Dockerfile exists
+          if [ ! -f Dockerfile ]; then
+            echo "❌ ERROR: Dockerfile not found in root!"
+            exit 1
+          fi
+
+          # Build image
+          echo "🚀 Building Docker image..."
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
-          # Tag image for ECR
+          # Tag for ECR
+          echo "🏷 Tagging image..."
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           # Show images
+          echo "📦 Available Docker images:"
           docker images
 
-          # Push to ECR
+          # Push
+          echo "📤 Pushing to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           echo "✅ Image pushed successfully!"
 
-      # ✅ Step 5: Verify push
+      # ✅ Step 6: Verify push
       - name: Verify image in ECR
         run: |
+          echo "🔍 Checking images in ECR..."
           aws ecr list-images \
             --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} \
             --region ${{ secrets.AWS_REGION }}
