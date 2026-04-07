@@ -1,5 +1,4 @@
 name: CI/CD to AWS ECR
-# FORCE UPDATE 
 
 on:
   push:
@@ -8,7 +7,15 @@ on:
     paths-ignore:
       - 'README.md'
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
+
+  # =========================
+  # 1️⃣ CONTINUOUS INTEGRATION
+  # =========================
   integration:
     name: Continuous Integration
     runs-on: ubuntu-latest
@@ -23,25 +30,23 @@ jobs:
       - name: Run unit tests
         run: echo "Running unit tests"
 
+  # =========================
+  # 2️⃣ BUILD + PUSH TO ECR
+  # =========================
   build-and-push-ecr-image:
     name: Build & Push to ECR
     needs: integration
     runs-on: ubuntu-latest
 
     steps:
-      # ✅ Step 1: Checkout
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ✅ Step 2: Debug workspace (VERY IMPORTANT)
       - name: Debug files
         run: |
-          echo "Current directory:"
           pwd
-          echo "Files:"
           ls -la
 
-      # ✅ Step 3: Configure AWS
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -49,55 +54,92 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # ✅ Step 4: Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # ✅ Step 5: Build, Tag, Push (FAIL-SAFE VERSION)
       - name: Build, tag, and push Docker image
-        shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: latest
         run: |
-          set -e   # ❗ fail immediately if any command fails
+          set -e
 
-          echo "===== DEBUG INFO ====="
-          echo "Registry: $ECR_REGISTRY"
-          echo "Repository: $ECR_REPOSITORY"
-          echo "Tag: $IMAGE_TAG"
-          echo "======================"
-
-          # ❗ Check Dockerfile exists
+          echo "Checking Dockerfile..."
           if [ ! -f Dockerfile ]; then
-            echo "❌ ERROR: Dockerfile not found in root!"
+            echo "❌ Dockerfile not found!"
             exit 1
           fi
 
-          # Build image
-          echo "🚀 Building Docker image..."
+          echo "🚀 Building image..."
           docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
 
-          # Tag for ECR
-          echo "🏷 Tagging image..."
+          echo "🏷 Tagging..."
           docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-          # Show images
-          echo "📦 Available Docker images:"
-          docker images
-
-          # Push
-          echo "📤 Pushing to ECR..."
+          echo "📤 Pushing..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-          echo "✅ Image pushed successfully!"
+          echo "✅ Push successful"
 
-      # ✅ Step 6: Verify push
       - name: Verify image in ECR
         run: |
-          echo "🔍 Checking images in ECR..."
           aws ecr list-images \
             --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} \
             --region ${{ secrets.AWS_REGION }}
+
+  # =========================
+  # 3️⃣ CONTINUOUS DEPLOYMENT
+  # =========================
+  Continuous-Deployment:
+    name: Deploy to Server
+    needs: build-and-push-ecr-image
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ✅ Pull latest image
+      - name: Pull latest image
+        run: |
+          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      # ✅ Stop & remove old container (IMPORTANT FIX)
+      - name: Stop & remove old container
+        run: |
+          docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity || echo "No existing container"
+
+      # ✅ Run new container
+      - name: Run Docker container
+        run: |
+          docker run -d \
+          -p 8080:8080 \
+          --name networksecurity \
+          --restart always \
+          -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+          -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+          -e AWS_REGION=${{ secrets.AWS_REGION }} \
+          ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      # ✅ Clean unused stuff
+      - name: Cleanup
+        run: |
+          docker system prune -f
+
+      # ✅ Debug running containers
+      - name: Verify running container
+        run: |
+          docker ps
