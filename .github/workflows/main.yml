@@ -88,58 +88,57 @@ jobs:
           aws ecr list-images \
             --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} \
             --region ${{ secrets.AWS_REGION }}
+            
+# =========================
+# 3️⃣ CONTINUOUS DEPLOYMENT
+# =========================
+Continuous-Deployment:
+  name: Deploy to Server
+  needs: build-and-push-ecr-image
+  runs-on: self-hosted
 
-  # =========================
-  # 3️⃣ CONTINUOUS DEPLOYMENT
-  # =========================
-  Continuous-Deployment:
-    name: Deploy to Server
-    needs: build-and-push-ecr-image
-    runs-on: self-hosted
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+    # ✅ Pull latest image
+    - name: Pull latest image
+      run: |
+        docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      # ✅ Pull latest image
-      - name: Pull latest image
-        run: |
-          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+    # 🔥 FIXED (force remove container)
+    - name: Remove old container (FIXED)
+      run: |
+        docker rm -f networksecurity || true
 
-      # ✅ Stop & remove old container (IMPORTANT FIX)
-      - name: Stop & remove old container
-        run: |
-          docker ps -q --filter "name=networksecurity" | grep -q . && docker stop networksecurity && docker rm -fv networksecurity || echo "No existing container"
+    # ✅ Run new container
+    - name: Run Docker container
+      run: |
+        docker run -d \
+        -p 8080:8080 \
+        --name networksecurity \
+        --restart always \
+        -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+        -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+        -e AWS_REGION=${{ secrets.AWS_REGION }} \
+        ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
 
-      # ✅ Run new container
-      - name: Run Docker container
-        run: |
-          docker run -d \
-          -p 8080:8080 \
-          --name networksecurity \
-          --restart always \
-          -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
-          -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-          -e AWS_REGION=${{ secrets.AWS_REGION }} \
-          ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+    # ✅ Cleanup
+    - name: Cleanup
+      run: |
+        docker system prune -f
 
-      # ✅ Clean unused stuff
-      - name: Cleanup
-        run: |
-          docker system prune -f
-
-      # ✅ Debug running containers
-      - name: Verify running container
-        run: |
-          docker ps
+    # ✅ Debug
+    - name: Verify running container
+      run: |
+        docker ps
