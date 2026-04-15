@@ -3,7 +3,7 @@
 Production-ready machine learning and DevOps project for phishing/network threat detection using FastAPI, Docker, and AWS.
 
 ## Overview
-
+- Author Name alwaysprince05
 - End-to-end ML pipeline with real-time API inference
 
 - Data ingestion and model training pipeline
