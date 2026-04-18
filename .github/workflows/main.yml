@@ -103,6 +103,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "🛠 Installing required dependencies (Docker & AWS CLI)..."
+            sudo apt-get update -y
+            sudo apt-get install docker.io awscli -y
+            sudo systemctl start docker || true
+            sudo systemctl enable docker || true
+            sudo usermod -aG docker ubuntu || true
+            
             export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
             export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
             export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
