@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs — NetworkSecurity IDS{% endblock %}
+{% block page_title %}System Logs{% endblock %}
+{% block page_breadcrumb %}Monitoring · Activity Logs{% endblock %}
+
+{% block extra_css %}
+<style>
+  .log-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-lg);
+  }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    transition: var(--transition);
+  }
+
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(0,212,255,0.08); }
+  .filter-btn.active-info { border-color: var(--accent-cyan); color: var(--accent-cyan); background: rgba(0,212,255,0.08); }
+  .filter-btn.active-success { border-color: var(--accent-green); color: var(--accent-green); background: rgba(0,230,118,0.08); }
+  .filter-btn.active-warn { border-color: var(--accent-orange); color: var(--accent-orange); background: rgba(255,165,2,0.08); }
+  .filter-btn.active-error { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255,71,87,0.08); }
+
+  .log-block {
+    background: #07091a;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.9;
+  }
+
+  .log-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .log-block-title {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .log-entries {
+    padding: var(--space-md);
+    max-height: 520px;
+    overflow-y: auto;
+  }
+
+  .log-entry {
+    display: flex;
+    gap: var(--space-sm);
+    padding: 3px 0;
+    border-radius: 3px;
+    padding: 2px 4px;
+    transition: background 0.15s;
+  }
+
+  .log-entry:hover { background: rgba(255,255,255,0.03); }
+
+  .log-ts { color: #3a4a6b; min-width: 85px; flex-shrink: 0; }
+  .log-level { min-width: 56px; flex-shrink: 0; font-weight: 600; text-align: center; border-radius: 3px; padding: 0 4px; }
+  .level-info  { color: var(--accent-cyan);   background: rgba(0,212,255,0.08); }
+  .level-ok    { color: var(--accent-green);  background: rgba(0,230,118,0.08); }
+  .level-warn  { color: var(--accent-orange); background: rgba(255,165,2,0.08); }
+  .level-error { color: var(--accent-red);    background: rgba(255,71,87,0.08); }
+
+  .log-msg { color: var(--text-primary); }
+  .log-msg .highlight { color: var(--accent-cyan); }
+
+  .stats-mini {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .stats-mini-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .stats-mini-val {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+  }
+
+  .stats-mini-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Mini Stats Row -->
+<div class="stats-mini">
+  <div class="stats-mini-card">
+    <div class="stats-mini-val text-cyan" id="log-total">0</div>
+    <div class="stats-mini-label">Total Entries</div>
+  </div>
+  <div class="stats-mini-card">
+    <div class="stats-mini-val text-green" id="log-ok">0</div>
+    <div class="stats-mini-label">Success</div>
+  </div>
+  <div class="stats-mini-card">
+    <div class="stats-mini-val text-orange" id="log-warn">0</div>
+    <div class="stats-mini-label">Warnings</div>
+  </div>
+  <div class="stats-mini-card">
+    <div class="stats-mini-val text-red" id="log-err">0</div>
+    <div class="stats-mini-label">Errors</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="log-filters">
+  <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px;">Filter:</span>
+  <button class="filter-btn active-info"    id="filter-all"   onclick="filterLogs('all')">All</button>
+  <button class="filter-btn"               id="filter-info"  onclick="filterLogs('info')">INFO</button>
+  <button class="filter-btn"               id="filter-ok"    onclick="filterLogs('ok')">SUCCESS</button>
+  <button class="filter-btn"               id="filter-warn"  onclick="filterLogs('warn')">WARNING</button>
+  <button class="filter-btn"               id="filter-error" onclick="filterLogs('error')">ERROR</button>
+  <div style="margin-left: auto; display: flex; gap: var(--space-sm);">
+    <button class="btn btn-outline btn-sm" onclick="refreshLogs()" id="refresh-logs-btn">↺ Refresh</button>
+    <button class="btn btn-outline btn-sm" onclick="clearDisplay()" id="clear-display-btn">Clear</button>
+  </div>
+</div>
+
+<!-- Log Block -->
+<div class="log-block">
+  <div class="log-block-header">
+    <span class="log-block-title">📋 networksecurity.log</span>
+    <span class="font-mono" style="font-size: 11px; color: var(--text-muted);" id="log-update-time">Loading...</span>
+  </div>
+  <div class="log-entries" id="log-entries">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Sample log data — in production this would be fetched from /api/logs
+  const SAMPLE_LOGS = [
+    { ts: '10:44:21', level: 'ok',   msg: 'Training pipeline completed successfully' },
+    { ts: '10:44:18', level: 'info', msg: 'Starting model evaluation with GridSearchCV' },
+    { ts: '10:43:55', level: 'info', msg: 'Data transformation complete — 12,000 records transformed' },
+    { ts: '10:43:30', level: 'ok',   msg: 'Data validation passed — no schema drift detected' },
+    { ts: '10:43:10', level: 'info', msg: 'Data ingestion started from MongoDB · collection: NetworkData' },
+    { ts: '10:42:58', level: 'ok',   msg: 'MongoDB connection established successfully' },
+    { ts: '10:42:45', level: 'info', msg: 'FastAPI application started on 0.0.0.0:8080' },
+    { ts: '10:41:30', level: 'warn', msg: 'Column [having_Sub_Domain] has 3.2% missing values — applying KNN imputer' },
+    { ts: '10:40:12', level: 'info', msg: 'Prediction request received — phishing_test.csv (2,450 rows)' },
+    { ts: '10:39:58', level: 'ok',   msg: 'Prediction completed — 2,100 normal, 350 malicious' },
+    { ts: '10:38:40', level: 'warn', msg: 'Model accuracy slightly below threshold on test set (0.59)' },
+    { ts: '10:37:15', level: 'error', msg: 'S3 sync failed — check AWS credentials or bucket permissions' },
+    { ts: '10:36:00', level: 'info', msg: 'MLflow tracking experiment started' },
+    { ts: '10:35:45', level: 'ok',   msg: 'Best model selected: Random Forest · F1=0.974 · Precision=0.981' },
+    { ts: '10:35:10', level: 'info', msg: 'AdaBoost training complete — score: 0.89' },
+    { ts: '10:34:40', level: 'info', msg: 'GradientBoosting training complete — score: 0.92' },
+    { ts: '10:34:00', level: 'info', msg: 'Decision Tree training complete — score: 0.95' },
+    { ts: '10:33:20', level: 'info', msg: 'Random Forest training complete — score: 0.97' },
+    { ts: '10:32:00', level: 'info', msg: 'Logistic Regression training complete — score: 0.78' },
+  ];
+
+  let activeFilter = 'all';
+  let logData = [...SAMPLE_LOGS];
+
+  function renderLogs(data) {
+    const container = document.getElementById('log-entries');
+    if (!data.length) {
+      container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 40px;">No log entries found</div>';
+      return;
+    }
+
+    container.innerHTML = data.map(l => `
+      <div class="log-entry" data-level="${l.level}">
+        <span class="log-ts">${l.ts}</span>
+        <span class="log-level level-${l.level}">${l.level.toUpperCase()}</span>
+        <span class="log-msg">${l.msg}</span>
+      </div>
+    `).join('');
+  }
+
+  function updateMiniStats(data) {
+    document.getElementById('log-total').textContent = logData.length;
+    document.getElementById('log-ok').textContent   = logData.filter(l => l.level === 'ok').length;
+    document.getElementById('log-warn').textContent  = logData.filter(l => l.level === 'warn').length;
+    document.getElementById('log-err').textContent   = logData.filter(l => l.level === 'error').length;
+  }
+
+  function filterLogs(level) {
+    activeFilter = level;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.className = 'filter-btn';
+    });
+    const filterMap = { all: 'active-info', info: 'active-info', ok: 'active-success', warn: 'active-warn', error: 'active-error' };
+    document.getElementById(`filter-${level === 'all' ? 'all' : level}`).className = `filter-btn ${filterMap[level]}`;
+
+    const filtered = level === 'all' ? logData : logData.filter(l => l.level === level);
+    renderLogs(filtered);
+  }
+
+  function refreshLogs() {
+    document.getElementById('log-update-time').textContent = 'Refreshing...';
+    setTimeout(() => {
+      const now = new Date().toLocaleTimeString('en-IN', { hour12: false });
+      document.getElementById('log-update-time').textContent = `Last updated: ${now}`;
+      filterLogs(activeFilter);
+    }, 600);
+  }
+
+  function clearDisplay() {
+    document.getElementById('log-entries').innerHTML =
+      '<div style="color: var(--text-muted); text-align: center; padding: 40px;">Display cleared</div>';
+  }
+
+  // Init
+  updateMiniStats();
+  filterLogs('all');
+  document.getElementById('log-update-time').textContent = `Last updated: ${new Date().toLocaleTimeString('en-IN', { hour12: false })}`;
+</script>
+{% endblock %}

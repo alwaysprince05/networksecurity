@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Run Prediction — NetworkSecurity IDS{% endblock %}
+{% block page_title %}Run Prediction{% endblock %}
+{% block page_breadcrumb %}ML Pipeline · Threat Detection{% endblock %}
+
+{% block extra_css %}
+<style>
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+  }
+
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    transition: var(--transition);
+  }
+
+  .summary-card .s-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+  .summary-card .s-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .summary-card .s-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    line-height: 1.2;
+  }
+
+  .results-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+
+  .results-table { width: 100%; border-collapse: collapse; }
+  .results-table th {
+    background: rgba(0,212,255,0.07);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table tr:hover td { background: rgba(0,212,255,0.03); }
+
+  .upload-card {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .file-name-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 10px 14px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent-cyan);
+    margin-top: var(--space-md);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if table_html %}
+<!-- ── Results View ─────────────────────────────── -->
+
+<!-- Summary Bar -->
+<div class="summary-bar">
+  <div class="summary-card">
+    <span class="s-icon">📊</span>
+    <div class="s-label">Total Records</div>
+    <div class="s-value" style="color: var(--accent-cyan);">{{ total_rows }}</div>
+  </div>
+  <div class="summary-card">
+    <span class="s-icon">🟢</span>
+    <div class="s-label">Normal</div>
+    <div class="s-value" style="color: var(--accent-green);">{{ normal_count }}</div>
+  </div>
+  <div class="summary-card">
+    <span class="s-icon">🔴</span>
+    <div class="s-label">Malicious</div>
+    <div class="s-value" style="color: var(--accent-red);">{{ malicious_count }}</div>
+  </div>
+</div>
+
+<!-- Action row -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
+  <div>
+    <span style="font-size: 15px; font-weight: 600; color: var(--text-primary);">📋 Prediction Results</span>
+    {% if filename %}
+    <div class="file-name-display" style="display: inline-flex; margin-left: var(--space-md);">
+      📁 {{ filename }}
+    </div>
+    {% endif %}
+  </div>
+  <div style="display: flex; gap: var(--space-sm);">
+    <a href="/predict-ui" class="btn btn-outline btn-sm" id="predict-new-btn">+ New Prediction</a>
+    <a href="/prediction_output/output.csv" class="btn btn-primary btn-sm" id="download-csv-btn" download>⬇ Download CSV</a>
+  </div>
+</div>
+
+<!-- Results Table -->
+<div class="card">
+  <div class="results-wrap">
+    {{ table_html | safe }}
+  </div>
+</div>
+
+{% else %}
+<!-- ── Upload View ──────────────────────────────── -->
+<div class="upload-card">
+
+  <div class="card mb-lg">
+    <div class="card-header">
+      <div class="card-title">🔍 Network Traffic Prediction</div>
+      <span class="badge badge-info">ML Model Ready</span>
+    </div>
+    <div class="card-body">
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-lg); line-height: 1.7;">
+        Upload a CSV file containing network traffic features. The model will classify each row as
+        <span class="badge badge-success" style="font-size: 11px;">🟢 Normal</span> or
+        <span class="badge badge-danger" style="font-size: 11px;">🔴 Malicious</span>
+        traffic using the trained Random Forest model.
+      </p>
+
+      <form id="predict-form" action="/predict" method="POST" enctype="multipart/form-data">
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" name="file" id="file-input" accept=".csv" required
+                 onchange="handleFileSelect(this)"
+                 aria-label="Upload CSV file for prediction" />
+          <span class="upload-icon">📂</span>
+          <div class="upload-title">Drop your CSV file here</div>
+          <div class="upload-subtitle">or click to browse · Max 50MB · .csv format</div>
+        </div>
+
+        <div id="file-info" style="display:none;" class="file-name-display">
+          📁 <span id="file-name-text"></span>
+          <span id="file-size-text" style="color: var(--text-muted); margin-left: auto;"></span>
+        </div>
+
+        <div style="margin-top: var(--space-lg); display: flex; justify-content: center;">
+          <button type="submit" class="btn btn-success btn-lg" id="predict-submit-btn" disabled>
+            🔍 Analyze & Predict
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Info Cards -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Expected Format</div>
+      </div>
+      <div class="card-body">
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
+          <div class="metric-row">
+            <span class="metric-label">Format</span>
+            <span class="metric-val font-mono">CSV</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Target Column</span>
+            <span class="metric-val font-mono text-cyan">Result</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Features</span>
+            <span class="metric-val font-mono">30 network cols</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Missing Values</span>
+            <span class="metric-val font-mono text-green">KNN Imputed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🎯 Model Info</div>
+      </div>
+      <div class="card-body">
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
+          <div class="metric-row">
+            <span class="metric-label">Algorithm</span>
+            <span class="metric-val font-mono">Random Forest</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Task</span>
+            <span class="metric-val font-mono text-cyan">Classification</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Classes</span>
+            <span class="metric-val font-mono">Normal / Attack</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">Location</span>
+            <span class="metric-val font-mono">final_model/</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/predict.js"></script>
+{% endblock %}

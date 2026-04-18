@@ -1,2 +1,20 @@
-venv
+venv/
 .env
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Project specific folders
+Artifacts/
+logs/
+mlruns/
+mlflow.db
+Network_Data/
+prediction_output/
+valid_data/
+final_model/
+
+# Mac OS
+.DS_Store

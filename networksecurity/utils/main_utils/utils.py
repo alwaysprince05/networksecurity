@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 
 from sklearn.metrics import r2_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 def read_yaml_file(file_path: str) -> dict:
     try:
@@ -77,34 +77,48 @@ def load_numpy_array_data(file_path: str) -> np.array:
         raise NetworkSecurityException(e, sys) from e
 
 
-
-def evaluate_models(X_train, y_train,X_test,y_test,models,param):
+def evaluate_models(X_train, y_train, X_test, y_test, models, param):
+    """
+    Evaluate multiple ML models using RandomizedSearchCV for fast hyperparameter tuning.
+    
+    Optimizations applied:
+      - RandomizedSearchCV  → tries only 10 random combos instead of exhaustive grid
+      - n_jobs=-1           → uses ALL CPU cores in parallel
+      - cv=3                → 3-fold instead of 5-fold cross-validation
+      - verbose=0           → no log spam slowing the terminal
+      - skip search if no params defined (LogisticRegression)
+    """
     try:
         report = {}
 
         for i in range(len(list(models))):
             model = list(models.values())[i]
-            para=param[list(models.keys())[i]]
+            para  = param[list(models.keys())[i]]
 
-            gs = GridSearchCV(model,para,cv=3)
-            gs.fit(X_train,y_train)
+            if para:  # Only search if params exist (skip LogisticRegression etc.)
+                gs = RandomizedSearchCV(
+                    estimator=model,
+                    param_distributions=para,
+                    n_iter=10,        # Try 10 random combos instead of ALL
+                    cv=3,             # 3-fold cross-validation
+                    n_jobs=-1,        # Use ALL CPU cores in parallel
+                    random_state=42,
+                    verbose=0,        # No stdout spam
+                )
+                gs.fit(X_train, y_train)
+                model.set_params(**gs.best_params_)
 
-            model.set_params(**gs.best_params_)
-            model.fit(X_train,y_train)
-
-            #model.fit(X_train, y_train)  # Train model
+            model.fit(X_train, y_train)
 
             y_train_pred = model.predict(X_train)
-
-            y_test_pred = model.predict(X_test)
+            y_test_pred  = model.predict(X_test)
 
             train_model_score = r2_score(y_train, y_train_pred)
-
-            test_model_score = r2_score(y_test, y_test_pred)
+            test_model_score  = r2_score(y_test,  y_test_pred)
 
             report[list(models.keys())[i]] = test_model_score
 
         return report
 
     except Exception as e:
-        raise NetworkSecurityException(e, sys)                    
+        raise NetworkSecurityException(e, sys)

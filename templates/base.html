@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NetworkSecurity IDS — Machine Learning Intrusion Detection System" />
+  <title>{% block title %}NetworkSecurity IDS{% endblock %}</title>
+
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="/static/css/base.css" />
+  <link rel="stylesheet" href="/static/css/components.css" />
+
+  <!-- Page-specific CSS -->
+  {% block extra_css %}{% endblock %}
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ── Sidebar ─────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <a href="/" class="sidebar-logo">
+      <div class="logo-icon">🛡️</div>
+      <div class="logo-text">
+        <span class="logo-title">NetSecurity</span>
+        <span class="logo-subtitle">IDS · ML Platform</span>
+      </div>
+    </a>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav" aria-label="Main navigation">
+      <span class="nav-section-label">Overview</span>
+      <a href="/"           class="nav-item {% if request.url.path == '/' %}active{% endif %}" id="nav-dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+
+      <span class="nav-section-label">ML Pipeline</span>
+      <a href="/train-ui"   class="nav-item {% if request.url.path == '/train-ui' %}active{% endif %}" id="nav-train">
+        <span class="nav-icon">🚀</span> Train Model
+      </a>
+      <a href="/predict-ui" class="nav-item {% if request.url.path == '/predict-ui' %}active{% endif %}" id="nav-predict">
+        <span class="nav-icon">🔍</span> Run Prediction
+      </a>
+
+      <span class="nav-section-label">Monitoring</span>
+      <a href="/logs-ui"    class="nav-item {% if request.url.path == '/logs-ui' %}active{% endif %}" id="nav-logs">
+        <span class="nav-icon">📋</span> System Logs
+      </a>
+      <a href="/docs"       class="nav-item" id="nav-docs" target="_blank">
+        <span class="nav-icon">📖</span> API Docs
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <div class="status-dot" id="system-status-dot"></div>
+        <span id="system-status-text">System Online</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ────────────────────────── -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="page-title">{% block page_title %}Dashboard{% endblock %}</span>
+        <span class="page-breadcrumb">{% block page_breadcrumb %}NetworkSecurity IDS{% endblock %}</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-time font-mono" id="topbar-clock">--:--:--</span>
+        <span class="badge-live">● LIVE</span>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content" id="page-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</div>
+
+<!-- ── Shared JS ──────────────────────────────── -->
+<script>
+  // Live clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('topbar-clock').textContent =
+      now.toLocaleTimeString('en-IN', { hour12: false });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Health check
+  async function checkHealth() {
+    try {
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      const dot  = document.getElementById('system-status-dot');
+      const txt  = document.getElementById('system-status-text');
+      if (data.status === 'healthy') {
+        dot.style.background = 'var(--accent-green)';
+        txt.textContent = 'System Online';
+      }
+    } catch {
+      const dot = document.getElementById('system-status-dot');
+      dot.style.background = 'var(--accent-red)';
+      document.getElementById('system-status-text').textContent = 'Offline';
+    }
+  }
+  checkHealth();
+  setInterval(checkHealth, 30000);
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

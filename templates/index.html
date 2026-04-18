@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — NetworkSecurity IDS{% endblock %}
+{% block page_title %}Security Dashboard{% endblock %}
+{% block page_breadcrumb %}Overview · Real-time monitoring{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Dashboard-specific styles ─────────────── */
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    position: relative;
+  }
+
+  .pipeline-step.done {
+    border-color: rgba(0,230,118,0.3);
+    color: var(--accent-green);
+  }
+
+  .pipeline-step.active {
+    border-color: rgba(0,212,255,0.4);
+    color: var(--accent-cyan);
+    box-shadow: var(--glow-cyan);
+    animation: step-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes step-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.3); }
+    50%       { box-shadow: 0 0 20px rgba(0,212,255,0.2); }
+  }
+
+  .pipeline-arrow {
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+
+  .model-metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .model-metric:last-child { border-bottom: none; }
+
+  .model-metric-name {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .model-metric-val {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .spark-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+  }
+
+  .spark-bar-col {
+    flex: 1;
+    background: rgba(0,212,255,0.2);
+    border-radius: 2px 2px 0 0;
+    transition: background 0.3s;
+  }
+
+  .spark-bar-col:hover { background: var(--accent-cyan); }
+
+  .threat-level-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--accent-red) 0% 15%,
+      var(--accent-orange) 15% 35%,
+      var(--accent-green) 35% 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .threat-level-ring::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    background: var(--bg-card);
+    border-radius: 50%;
+  }
+
+  .threat-level-val {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .quick-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+
+  .quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+
+  .quick-action-btn:hover {
+    border-color: var(--accent-cyan);
+    background: rgba(0,212,255,0.05);
+    transform: translateY(-2px);
+  }
+
+  .quick-action-icon {
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,212,255,0.1);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  .quick-action-text { font-size: 13px; font-weight: 600; }
+  .quick-action-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Stat Cards Row ───────────────────────────── -->
+<section class="section">
+  <div class="grid-4">
+
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <span class="stat-label">Packets Analyzed</span>
+        <div class="stat-icon">📡</div>
+      </div>
+      <div class="stat-value" id="stat-packets">0</div>
+      <div class="stat-change">
+        <span class="up">↑ 12%</span> vs last session
+      </div>
+    </div>
+
+    <div class="stat-card accent-red">
+      <div class="stat-card-header">
+        <span class="stat-label">Threats Detected</span>
+        <div class="stat-icon red">⚠️</div>
+      </div>
+      <div class="stat-value" id="stat-threats">0</div>
+      <div class="stat-change">
+        <span class="down">↓ 5%</span> vs yesterday
+      </div>
+    </div>
+
+    <div class="stat-card accent-green">
+      <div class="stat-card-header">
+        <span class="stat-label">Model Accuracy</span>
+        <div class="stat-icon green">🎯</div>
+      </div>
+      <div class="stat-value" id="stat-accuracy">—</div>
+      <div class="stat-change">
+        <span class="up">↑ 2.1%</span> from last train
+      </div>
+    </div>
+
+    <div class="stat-card accent-purple">
+      <div class="stat-card-header">
+        <span class="stat-label">API Uptime</span>
+        <div class="stat-icon purple">🔗</div>
+      </div>
+      <div class="stat-value">99.8<span style="font-size:18px">%</span></div>
+      <div class="stat-change">
+        <span class="up">Operational</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Pipeline Status + Threat Overview ──────── -->
+<section class="section">
+  <div class="grid-2">
+
+    <!-- Pipeline Status Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚙️ ML Pipeline Status</div>
+        <span class="badge badge-success">Ready</span>
+      </div>
+      <div class="card-body">
+        <div class="pipeline-flow">
+          <div class="pipeline-step done">📦 Data Ingestion</div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step done">✅ Validation</div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step done">⚡ Transform</div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step done">🤖 Train</div>
+          <span class="pipeline-arrow">→</span>
+          <div class="pipeline-step active">🚀 Deploy</div>
+        </div>
+
+        <div style="margin-top: var(--space-lg);">
+          <div class="model-metric">
+            <span class="model-metric-name">🌳 Best Model</span>
+            <span class="model-metric-val" id="best-model-name">Random Forest</span>
+          </div>
+          <div class="model-metric">
+            <span class="model-metric-name">📊 F1 Score</span>
+            <span class="model-metric-val text-green" id="f1-score">—</span>
+          </div>
+          <div class="model-metric">
+            <span class="model-metric-name">🎯 Precision</span>
+            <span class="model-metric-val text-cyan" id="precision-score">—</span>
+          </div>
+          <div class="model-metric">
+            <span class="model-metric-name">📡 Recall</span>
+            <span class="model-metric-val text-orange" id="recall-score">—</span>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md);">
+          <a href="/train-ui" class="btn btn-primary" id="retrain-btn">
+            🚀 Retrain Model
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Threat Overview Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔐 Threat Overview</div>
+        <span class="badge badge-warning">Low Risk</span>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; align-items: center; gap: var(--space-xl); margin-bottom: var(--space-lg);">
+          <div class="threat-level-ring">
+            <span class="threat-level-val">15%</span>
+          </div>
+          <div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--text-primary);">Threat Level: Low</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Based on last prediction run</div>
+          </div>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">🟢 Normal Traffic</span>
+          <span class="metric-val text-green">85%</span>
+        </div>
+        <div style="margin: 6px 0 14px;">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill green" style="width: 85%;"></div>
+          </div>
+        </div>
+
+        <div class="metric-row">
+          <span class="metric-label">🔴 Malicious Traffic</span>
+          <span class="metric-val text-red">15%</span>
+        </div>
+        <div style="margin: 6px 0;">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill red" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-md);">
+          <a href="/predict-ui" class="btn btn-outline btn-sm">
+            🔍 Run New Prediction
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Activity Feed + Quick Actions ──────────── -->
+<section class="section">
+  <div class="grid-2">
+
+    <!-- Recent Activity -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📋 Recent Activity</div>
+        <a href="/logs-ui" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div class="card-body">
+        <div class="activity-feed" id="activity-feed">
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div>
+              <div class="activity-text">Model training completed successfully</div>
+              <div class="activity-time">2 hours ago · RandomForest · F1: 0.97</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot cyan"></div>
+            <div>
+              <div class="activity-text">Prediction request processed</div>
+              <div class="activity-time">3 hours ago · 2,450 records · 12% threats</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot orange"></div>
+            <div>
+              <div class="activity-text">Data validation warning — 3 drifted columns</div>
+              <div class="activity-time">5 hours ago · schema drift detected</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot green"></div>
+            <div>
+              <div class="activity-text">Data ingested from MongoDB successfully</div>
+              <div class="activity-time">6 hours ago · 15,000 records</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot red"></div>
+            <div>
+              <div class="activity-text">High-severity threat detected in batch</div>
+              <div class="activity-time">Yesterday · 231 malicious packets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚡ Quick Actions</div>
+      </div>
+      <div class="card-body">
+        <div class="quick-action-grid">
+          <a href="/train-ui" class="quick-action-btn" id="qa-train">
+            <div class="quick-action-icon">🚀</div>
+            <div>
+              <div class="quick-action-text">Train Model</div>
+              <div class="quick-action-desc">Start full ML pipeline</div>
+            </div>
+          </a>
+          <a href="/predict-ui" class="quick-action-btn" id="qa-predict">
+            <div class="quick-action-icon">🔍</div>
+            <div>
+              <div class="quick-action-text">Run Prediction</div>
+              <div class="quick-action-desc">Upload CSV & detect threats</div>
+            </div>
+          </a>
+          <a href="/logs-ui" class="quick-action-btn" id="qa-logs">
+            <div class="quick-action-icon">📋</div>
+            <div>
+              <div class="quick-action-text">View Logs</div>
+              <div class="quick-action-desc">System activity logs</div>
+            </div>
+          </a>
+          <a href="/docs" target="_blank" class="quick-action-btn" id="qa-api">
+            <div class="quick-action-icon">📖</div>
+            <div>
+              <div class="quick-action-text">API Docs</div>
+              <div class="quick-action-desc">FastAPI Swagger UI</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

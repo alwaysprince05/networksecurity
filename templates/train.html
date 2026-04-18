@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Train Model — NetworkSecurity IDS{% endblock %}
+{% block page_title %}Train Model{% endblock %}
+{% block page_breadcrumb %}ML Pipeline · Training{% endblock %}
+
+{% block extra_css %}
+<style>
+  .pipeline-stages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .stage-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    transition: var(--transition);
+  }
+
+  .stage-item.done {
+    border-color: rgba(0,230,118,0.3);
+    background: rgba(0,230,118,0.04);
+  }
+
+  .stage-item.running {
+    border-color: rgba(0,212,255,0.4);
+    background: rgba(0,212,255,0.05);
+    animation: stage-glow 1.5s ease-in-out infinite;
+  }
+
+  .stage-item.failed {
+    border-color: rgba(255,71,87,0.3);
+    background: rgba(255,71,87,0.04);
+  }
+
+  @keyframes stage-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.2); }
+    50%       { box-shadow: 0 0 12px rgba(0,212,255,0.15); }
+  }
+
+  .stage-icon {
+    font-size: 22px;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .stage-info { flex: 1; }
+  .stage-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .stage-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .stage-status {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stage-status.done    { color: var(--accent-green); }
+  .stage-status.running { color: var(--accent-cyan); }
+  .stage-status.failed  { color: var(--accent-red); }
+  .stage-status.idle    { color: var(--text-muted); }
+
+  .train-btn-wrap {
+    display: flex;
+    justify-content: center;
+    margin: var(--space-xl) 0;
+  }
+
+  .big-train-btn {
+    padding: 18px 56px;
+    font-size: 17px;
+    border-radius: var(--radius-lg);
+    background: var(--grad-cyan);
+    color: #000;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    box-shadow: 0 6px 32px rgba(0,212,255,0.35);
+    transition: var(--transition);
+    font-family: var(--font-sans);
+  }
+
+  .big-train-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 48px rgba(0,212,255,0.45);
+  }
+
+  .big-train-btn:active { transform: scale(0.98); }
+  .big-train-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .log-terminal {
+    background: #07091a;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent-cyan);
+    height: 240px;
+    overflow-y: auto;
+    line-height: 1.8;
+  }
+
+  .log-line { display: block; }
+  .log-line .ts { color: var(--text-muted); margin-right: 8px; }
+  .log-line .ok { color: var(--accent-green); }
+  .log-line .err { color: var(--accent-red); }
+  .log-line .info { color: var(--accent-cyan); }
+  .log-line .warn { color: var(--accent-orange); }
+
+  .overall-progress {
+    height: 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: var(--space-lg);
+  }
+
+  .overall-progress-fill {
+    height: 100%;
+    background: var(--grad-cyan);
+    border-radius: 999px;
+    transition: width 0.8s ease;
+    width: 0%;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-2">
+
+  <!-- ── Left: Controls ───────────────────────── -->
+  <div>
+
+    <!-- Config Card -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <div class="card-title">⚙️ Training Configuration</div>
+        <span class="badge badge-info">Auto-tune ON</span>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+          <div class="metric-row">
+            <span class="metric-label">📦 Data Source</span>
+            <span class="metric-val font-mono text-cyan">MongoDB · PRINCEAI</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">📂 Collection</span>
+            <span class="metric-val font-mono">NetworkData</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">📊 Train / Test Split</span>
+            <span class="metric-val font-mono">80% / 20%</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">🎯 Target Column</span>
+            <span class="metric-val font-mono">Result</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">🤖 Models Evaluated</span>
+            <span class="metric-val font-mono">5 classifiers</span>
+          </div>
+          <div class="metric-row">
+            <span class="metric-label">📈 Min Accuracy</span>
+            <span class="metric-val font-mono text-green">60%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Models Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🤖 Models in Competition</div>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="stage-item">
+            <span class="stage-icon">🌳</span>
+            <div class="stage-info">
+              <div class="stage-name">Random Forest</div>
+              <div class="stage-desc">n_estimators: [8,16,32,128,256]</div>
+            </div>
+          </div>
+          <div class="stage-item">
+            <span class="stage-icon">🌿</span>
+            <div class="stage-info">
+              <div class="stage-name">Decision Tree</div>
+              <div class="stage-desc">criterion: gini, entropy, log_loss</div>
+            </div>
+          </div>
+          <div class="stage-item">
+            <span class="stage-icon">⚡</span>
+            <div class="stage-info">
+              <div class="stage-name">Gradient Boosting</div>
+              <div class="stage-desc">learning_rate, n_estimators: grid search</div>
+            </div>
+          </div>
+          <div class="stage-item">
+            <span class="stage-icon">📉</span>
+            <div class="stage-info">
+              <div class="stage-name">Logistic Regression</div>
+              <div class="stage-desc">Default params</div>
+            </div>
+          </div>
+          <div class="stage-item">
+            <span class="stage-icon">🔁</span>
+            <div class="stage-info">
+              <div class="stage-name">AdaBoost</div>
+              <div class="stage-desc">learning_rate, n_estimators: grid search</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Right: Pipeline + Launch ─────────────── -->
+  <div>
+
+    <!-- Pipeline Stages -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <div class="card-title">🔄 Pipeline Progress</div>
+        <span class="badge badge-info" id="pipeline-badge">Idle</span>
+      </div>
+      <div class="card-body">
+
+        <div class="overall-progress">
+          <div class="overall-progress-fill" id="overall-progress"></div>
+        </div>
+
+        <div class="pipeline-stages" id="pipeline-stages">
+          <div class="stage-item" id="stage-ingestion">
+            <span class="stage-icon">📦</span>
+            <div class="stage-info">
+              <div class="stage-name">Data Ingestion</div>
+              <div class="stage-desc">Fetch from MongoDB</div>
+            </div>
+            <div class="stage-status idle" id="status-ingestion">● Waiting</div>
+          </div>
+          <div class="stage-item" id="stage-validation">
+            <span class="stage-icon">✅</span>
+            <div class="stage-info">
+              <div class="stage-name">Data Validation</div>
+              <div class="stage-desc">Schema & drift check</div>
+            </div>
+            <div class="stage-status idle" id="status-validation">● Waiting</div>
+          </div>
+          <div class="stage-item" id="stage-transformation">
+            <span class="stage-icon">⚡</span>
+            <div class="stage-info">
+              <div class="stage-name">Data Transformation</div>
+              <div class="stage-desc">KNN imputation + scaling</div>
+            </div>
+            <div class="stage-status idle" id="status-transformation">● Waiting</div>
+          </div>
+          <div class="stage-item" id="stage-training">
+            <span class="stage-icon">🤖</span>
+            <div class="stage-info">
+              <div class="stage-name">Model Training</div>
+              <div class="stage-desc">GridSearch across 5 models</div>
+            </div>
+            <div class="stage-status idle" id="status-training">● Waiting</div>
+          </div>
+          <div class="stage-item" id="stage-sync">
+            <span class="stage-icon">☁️</span>
+            <div class="stage-info">
+              <div class="stage-name">S3 Sync</div>
+              <div class="stage-desc">Push artifacts & model to S3</div>
+            </div>
+            <div class="stage-status idle" id="status-sync">● Waiting</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Launch Button -->
+    <div class="train-btn-wrap">
+      <button class="big-train-btn" id="launch-train-btn" onclick="startTraining()">
+        🚀 Launch Training Pipeline
+      </button>
+    </div>
+
+    <!-- Result banner (hidden by default) -->
+    <div id="train-result-banner" style="display:none; margin-bottom: var(--space-md);"></div>
+
+    <!-- Log Terminal -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">💻 Training Log</div>
+        <button class="btn btn-outline btn-sm" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div class="log-terminal" id="log-terminal">
+          <span class="log-line"><span class="ts">--:--:--</span><span class="info">Ready. Click "Launch Training Pipeline" to begin.</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/train.js"></script>
+{% endblock %}
