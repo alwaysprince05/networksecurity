@@ -11,6 +11,13 @@ A production-ready machine learning and DevOps application for real-time phishin
 
 ---
 
+## Live Demonstration
+
+- **App Dashboard (UI):** [http://13.233.60.175:8080/](http://13.233.60.175:8080/)
+- **Swagger Documentation (API):** [http://13.233.60.175:8080/docs](http://13.233.60.175:8080/docs)
+
+---
+
 ## Tech Stack Overview
 
 - **Python:** Primary application language.
