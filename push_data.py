@@ -11,7 +11,7 @@ from networksecurity.exception.exception import NetworkSecurityException
 
 load_dotenv()
 
-MONGO_DB_URL = os.getenv("MONGO_DB_URL")
+MONGO_DB_URL = os.getenv("MONGODB_URL_KEY")
 print(MONGO_DB_URL)
 
 ca = certifi.where()

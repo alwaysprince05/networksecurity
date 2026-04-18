@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 from dotenv import load_dotenv
 load_dotenv()
 
-MONGO_DB_URL=os.getenv("MONGO_DB_URL")
+MONGO_DB_URL = os.getenv("MONGODB_URL_KEY")
 
 
 class DataIngestion:
@@ -43,7 +43,7 @@ class DataIngestion:
             df.replace({"na":np.nan},inplace=True)
             return df
         except Exception as e:
-            raise NetworkSecurityException
+            raise NetworkSecurityException(e, sys)
         
     def export_data_into_feature_store(self,dataframe: pd.DataFrame):
         try:
@@ -98,5 +98,5 @@ class DataIngestion:
             return dataingestionartifact
 
         except Exception as e:
-            raise NetworkSecurityException
+            raise NetworkSecurityException(e, sys)
         
