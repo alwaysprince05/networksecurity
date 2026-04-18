@@ -2,7 +2,6 @@ venv/
 mlruns/
 mlflow.db
 Artifacts/
-final_model/
 logs/
 prediction_output/
 __pycache__/
