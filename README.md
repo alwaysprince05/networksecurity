@@ -1,153 +1,110 @@
-# Network Security Threat Detection
+# Network Security Threat Detection System
 
-Production-ready machine learning and DevOps project for phishing/network threat detection using FastAPI, Docker, and AWS.
+A production-ready machine learning and DevOps application for real-time phishing and network threat detection.
 
-## Overview
-- Author Name alwaysprince05
-- End-to-end ML pipeline with real-time API inference
+## Fast Overview
+- **Author:** Prince Maurya
+- **Core:** End-to-end ML pipeline with a beautiful, dynamic Dark-Themed UI.
+- **Backend:** FastAPI for seamless data ingestion, model orchestration, and predictions.
+- **Frontend:** Jinja2 templating with Vanilla CSS and JS for a dynamic Single-Page Application feel.
+- **DevOps:** Dockerized packaging, Git Actions CI/CD to AWS ECR, and automated deployments to AWS EC2.
 
-- Data ingestion and model training pipeline
-- Prediction through a FastAPI endpoint
-- Docker-based packaging
-- CI/CD with GitHub Actions
-- Deployment flow using AWS ECR and EC2
+---
 
-## Tech Stack
+## Tech Stack Overview
 
-- Python
-- FastAPI + Uvicorn
-- Scikit-learn
-- MongoDB (via `pymongo`)
-- Docker
-- GitHub Actions
-- AWS (ECR + EC2)
+- **Python:** Primary application language.
+- **FastAPI + Uvicorn:** High-performance async web framework.
+- **Scikit-learn:** Model training and validation (RandomForest, DecisionTrees, etc).
+- **MongoDB:** NoSQL database for structured data ingestion.
+- **Docker:** Application containerization.
+- **GitHub Actions:** CI/CD automated test & deployment pipelines.
+- **AWS:** Amazon ECR for container registries and EC2 for hosting.
 
-## Repository Structure
+---
+
+## Application Structure
 
 ```text
 networksecurity/
-├── .github/workflows/          # CI/CD workflow
-├── networksecurity/            # Core package
-│   ├── components/             # ML pipeline components
-│   ├── pipeline/               # Training orchestration
-│   ├── utils/                  # Utilities/helpers
-│   ├── cloud/                  # Cloud integrations
-│   ├── constant/               # Constants/config values
-│   ├── entity/                 # Config and artifact entities
-│   ├── exception/              # Custom exception handling
-│   └── logging/                # Logging setup
-├── templates/                  # HTML templates for prediction output
-├── final_model/                # Saved model artifacts
-├── prediction_output/          # Generated prediction CSV output
-├── app.py                      # FastAPI app entry point
-├── main.py                     # Local training pipeline runner
-├── requirements.txt            # Python dependencies
-└── Dockerfile                  # Container build definition
+├── .github/workflows/          # CI/CD workflows for AWS Automation
+├── networksecurity/            # Core computational engine
+│   ├── components/             # Ingestion, Validation, Transformation, Training
+│   ├── pipeline/               # Full pipeline orchestrators
+│   ├── model/                  # Custom Scikit-Learn estimators
+│   ├── cloud/                  # AWS S3 sync adapters
+│   └── exception/              # Customized traceback and exception handlers
+├── static/                     # CSS stylesheets, JS frontend controllers, visuals
+├── templates/                  # Jinja2 HTML views (Dashboards, Predict, Logs)
+├── final_model/                # Pickled production ML models (.pkl)
+├── logs/                       # System events and exception history
+├── prediction_output/          # Auto-generated CSV files of predictions
+├── app.py                      # FastAPI core entry point
+└── Dockerfile                  # Slim Python 3.10 deployment schema
 ```
 
-## API Endpoints
+---
 
-Once the app is running, Swagger docs are available at `/docs`.
+## Project Endpoints & UIs
 
-- `GET /`  
-  Redirects to API docs.
-- `GET /train`  
-  Triggers training pipeline execution.
-- `POST /predict`  
-  Accepts CSV file upload and returns a rendered prediction table.
+The system offers both a clean browser user interface and raw API endpoints.
+
+### Beautiful Frontend Panels
+- `GET /` — The main graphical dashboard / overview.
+- `GET /train-ui` — UI interface for triggering and viewing the training pipeline status.
+- `GET /predict-ui` — UI interface with drag-and-drop CSV upload for real-time threat predictions.
+- `GET /logs-ui` — Live remote view of the EC2 container's internal logfiles.
+
+### Raw Backend APIs
+- `GET /train` — Silently triggers the ML Data Ingestion → Validation → Transformation → Training pipeline.
+- `POST /predict` — Accepts a CSV upload and responds with evaluated ML labels.
+- `GET /api/status` — General server health-check ping.
+- `GET /docs` — Auto-generated Swagger documentation.
+
+---
 
 ## Local Development Setup
 
-### 1) Clone and enter project
-
+### 1. Clone the repository
 ```bash
 git clone https://github.com/alwaysprince05/networksecurity.git
 cd networksecurity
 ```
 
-### 2) Create virtual environment
-
+### 2. Initialize the Python environment
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-### 3) Install dependencies
-
-```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4) Configure environment variables
-
-Create a `.env` file in project root:
-
+### 3. Environment Secrets Configure
+Create a `.env` file at the root. You must provide a valid MongoDB connection string where your phishing data is stored.
 ```env
-MONGODB_URL_KEY=<your_mongodb_connection_string>
+MONGODB_URL_KEY="mongodb+srv://<user>:<password>@cluster/..."
 ```
 
-### 5) Run the API
-
+### 4. Boot the server
 ```bash
 python app.py
 ```
+Open up your browser to `http://127.0.0.1:8000/` and you'll immediately see the frontend interface.
 
-Open: `http://127.0.0.1:8000/docs`
+---
 
-## Docker (Local)
+## Operations & DevOps
 
-Build and run:
-
+### Docker Deployments
+The application is aggressively optimized using a thin Debian Linux image and a strict `.dockerignore` file to ensure the ML pipeline remains isolated, extremely lightweight, and avoids arbitrary database collisions with local `mlflow` runs.
 ```bash
 docker build -t networksecurity .
-docker run -d --name networksecurity -p 8080:8080 networksecurity
+docker run -d --name networksecurity -p 8080:8000 networksecurity
 ```
 
-Open: `http://127.0.0.1:8080/docs`
+### Continuous Deployment (AWS EC2 + ECR)
+The application utilizes an automated **GitHub Actions** script (`main.yml`) that instantly initiates upon pushed code. 
+1. The code is compressed and rigorously vetted.
+2. The Dockerfile compiles within a GitHub Runner and patches to AWS ECR.
+3. Once pushed, it securely SSH's into our AWS EC2 instance, safely removes the old active container, and runs the newest system codebase autonomously. 
 
-## CI/CD Pipeline (GitHub Actions)
-
-The workflow in `.github/workflows/main.yml` performs:
-
-1. Continuous Integration job on push to `main`
-2. Docker image build and push to Amazon ECR
-3. Continuous Deployment on a self-hosted runner (EC2)
-
-High-level flow:
-
-```text
-GitHub Push -> CI Checks -> Docker Build -> Push to ECR -> Pull on EC2 -> Run Container
-```
-
-## Required GitHub Secrets
-
-Set these repository secrets before enabling deployment:
-
-```env
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=
-AWS_ECR_LOGIN_URI=
-ECR_REPOSITORY_NAME=networksecurity
-```
-
-## EC2 Docker Setup (One Time)
-
-```bash
-sudo apt-get update -y
-sudo apt-get upgrade -y
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker ubuntu
-newgrp docker
-```
-
-## Troubleshooting
-
-- If `/predict` fails, verify uploaded CSV schema matches training features.
-- If app fails at startup, confirm `.env` contains valid `MONGODB_URL_KEY`.
-- If deployment fails, validate AWS credentials and ECR repository name.
-
-## Live API
-
-Current deployment: [Live API](http://15.206.81.166:8080/docs)
+**(Ensure that `MONGODB_URL_KEY`, `AWS_ACCESS_KEY_ID`, `AWS_ECR_LOGIN_URI`, and `EC2_SSH_KEY` are placed in your repository's secrets panel to allow automated deployments to function properly)**
