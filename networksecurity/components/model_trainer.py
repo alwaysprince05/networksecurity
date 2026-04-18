@@ -56,7 +56,7 @@ class ModelTrainer:
         
     def train_model(self,X_train,y_train,x_test,y_test):    
         models = {
-                "Random Forest": RandomForestClassifier(n_jobs=-1),
+                "Random Forest": RandomForestClassifier(n_jobs=1),
                 "Decision Tree": DecisionTreeClassifier(),
                 "Gradient Boosting": GradientBoostingClassifier(),
                 "Logistic Regression": LogisticRegression(max_iter=500),

@@ -101,7 +101,7 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
                     param_distributions=para,
                     n_iter=10,        # Try 10 random combos instead of ALL
                     cv=3,             # 3-fold cross-validation
-                    n_jobs=-1,        # Use ALL CPU cores in parallel
+                    n_jobs=1,         # Changed from -1 to avoid OOM on low-memory servers (e.g. EC2 t2.micro)
                     random_state=42,
                     verbose=0,        # No stdout spam
                 )

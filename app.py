@@ -24,6 +24,14 @@ import pandas as pd
 from networksecurity.utils.main_utils.utils import load_object
 from networksecurity.utils.ml_utils.model.estimator import NetworkModel
 
+@app.exception_handler(NetworkSecurityException)
+async def network_security_exception_handler(request: Request, exc: NetworkSecurityException):
+    return JSONResponse(
+        status_code=500,
+        content={"status": "error", "message": str(exc)},
+    )
+
+
 client = pymongo.MongoClient(mongo_db_url, tlsCAFile=ca)
 
 from networksecurity.constant.training_pipeline import DATA_INGESTION_COLLECTION_NAME

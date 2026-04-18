@@ -127,6 +127,10 @@ async function startTraining() {
     const response = await fetch('/train', { method: 'GET' });
 
     if (!response.ok) {
+      if (response.headers.get('content-type')?.includes('application/json')) {
+        const errData = await response.json();
+        throw new Error(errData.message || `Server returned ${response.status}`);
+      }
       throw new Error(`Server returned ${response.status}`);
     }
 
