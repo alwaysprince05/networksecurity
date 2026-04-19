@@ -117,9 +117,9 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
         os.makedirs("prediction_output", exist_ok=True)
         df.to_csv("prediction_output/output.csv", index=False)
 
-        # Map -1 → Malicious, 1 → Normal for display
+        # Map 0 → Malicious, 1 → Normal for display
         df["Threat Status"] = df["predicted_column"].map(
-            lambda x: "🔴 Malicious" if x == -1 else "🟢 Normal"
+            lambda x: "🔴 Malicious" if x == 0 else "🟢 Normal"
         )
 
         table_html = df.to_html(
@@ -135,7 +135,7 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
             {
                 "table_html": table_html,
                 "total_rows": len(df),
-                "malicious_count": int((df["predicted_column"] == -1).sum()),
+                "malicious_count": int((df["predicted_column"] == 0).sum()),
                 "normal_count": int((df["predicted_column"] == 1).sum()),
                 "filename": file.filename,
             }
