@@ -5,7 +5,48 @@
 {% block page_breadcrumb %}ML Pipeline · Threat Detection{% endblock %}
 
 {% block extra_css %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <style>
+  /* DataTables Dark Theme Overrides */
+  .dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 15px;
+    margin-top: 10px;
+  }
+  .dataTables_wrapper .dataTables_filter input {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    margin-left: 8px;
+  }
+  .dataTables_wrapper .dataTables_length select {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    margin: 0 4px;
+  }
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--text-primary) !important;
+    border-radius: var(--radius-sm);
+  }
+  .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent-cyan) !important;
+    border: 1px solid var(--accent-cyan);
+  }
+  .dataTables_empty { text-align: center; color: var(--text-muted); }
+  table.dataTable.no-footer { border-bottom: 2px solid var(--border); }
+  table.dataTable tbody tr { background-color: transparent; }
+  table.dataTable tbody tr:hover { background-color: rgba(0, 212, 255, 0.03) !important; }
+  .dataTables_wrapper { padding: var(--space-md); }
+  .results-table { border-collapse: separate !important; }
+
   .summary-bar {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -228,5 +269,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="/static/js/predict.js"></script>
 {% endblock %}

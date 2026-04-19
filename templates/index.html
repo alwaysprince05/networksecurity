@@ -319,6 +319,19 @@
   </div>
 </section>
 
+<!-- ── Live Traffic Chart ────────────────────────── -->
+<section class="section">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📈 Live Network Traffic</div>
+      <span class="badge badge-info">Real-time</span>
+    </div>
+    <div class="card-body" style="height: 300px; padding-top: 20px;">
+      <canvas id="trafficChart"></canvas>
+    </div>
+  </div>
+</section>
+
 <!-- ── Activity Feed + Quick Actions ──────────── -->
 <section class="section">
   <div class="grid-2">
@@ -415,5 +428,6 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/dashboard.js"></script>
 {% endblock %}
