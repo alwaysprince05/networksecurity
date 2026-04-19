@@ -110,6 +110,111 @@ Track activity and generate reports.
 
 ---
 
+## 🔮 Threat Prediction & Upload Interface
+
+**Purpose:**  
+Allows security administrators to upload raw CSV network data for real-time model prediction.
+
+**Features:**
+- Drag-and-drop CSV upload
+- Real-time scoring and prediction
+- Immediate threat classification breakdown
+- Highlighted anomalous traffic rows
+
+![Wireframe 8](assets/image8.png)
+
+---
+
+## 🛰️ Geolocation Threat Map
+
+**Purpose:**  
+Displays the geographic origin of incoming attacks and suspicious inbound traffic.
+
+**Features:**
+- World map overlay with heatmaps
+- IP address triangulation
+- Threat intensity by region
+- Blacklisted country filters
+
+![Wireframe 9](assets/image9.png)
+
+---
+
+## 🤖 Model Training Pipeline
+
+**Purpose:**  
+Monitors the lifecycle of the Machine Learning training process.
+
+**Features:**
+- Data Ingestion & Validation metrics
+- Transformation and Scaling status
+- Final model accuracy and F1 scores
+- One-click model retraining
+
+![Wireframe 10](assets/image10.png)
+
+---
+
+## 🛡️ Firewall & Rule Configuration
+
+**Purpose:**  
+Provides a central hub to manage firewall policies and block malicious signatures.
+
+**Features:**
+- Custom packet filtering rules
+- Automatic IP blocking integration
+- Port and Protocol restrictions
+- Active rule lifecycle tracking
+
+![Wireframe 11](assets/image11.png)
+
+---
+
+## 📈 Live Protocol & Packet Analysis
+
+**Purpose:**  
+Deep dive inspection into live streaming network protocols (TCP, UDP, ICMP).
+
+**Features:**
+- Granular packet headers
+- Traffic throughput by protocol
+- Malformed packet detection
+- Payload length analysis
+
+![Wireframe 12](assets/image12.png)
+
+---
+
+## 🖥️ System Health & Resource Monitor
+
+**Purpose:**  
+Tracks the underlying server infrastructure utilizing the IDS application.
+
+**Features:**
+- Live CPU and Memory utilization
+- Container Health (Docker/EC2)
+- Database latency metrics
+- Out-of-memory attack alerts
+
+![Wireframe 13](assets/image13.png)
+
+---
+
+## 🕸️ Threat Intelligence & Dark Web Feed
+
+**Purpose:**  
+Aggregate external threat feeds and zero-day vulnerability announcements.
+
+**Features:**
+- CVE database sync
+- Known malicious IP feeds
+- Phishing domain blacklists
+- Emerging malware family tracker
+
+![Wireframe 14](assets/image14.png)
+
+---
+
 ## ✨ Design Goals
 
 - Clarity and simplicity  
