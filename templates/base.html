@@ -17,7 +17,6 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
 </head>
 <body>
-<div id="particles-js"></div>
 <div class="app-layout">
 
   <!-- ── Sidebar ─────────────────────────────── -->
@@ -121,25 +120,5 @@
 </script>
 
 {% block extra_js %}{% endblock %}
-
-<!-- Particles.js -->
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script>
-  if (typeof particlesJS !== 'undefined') {
-    particlesJS("particles-js", {
-      "particles": {
-        "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
-        "color": { "value": "#00d4ff" },
-        "shape": { "type": "circle" },
-        "opacity": { "value": 0.2, "random": false },
-        "size": { "value": 2, "random": true },
-        "line_linked": { "enable": true, "distance": 150, "color": "#00d4ff", "opacity": 0.1, "width": 1 },
-        "move": { "enable": true, "speed": 1, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
-      },
-      "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false }, "resize": true } },
-      "retina_detect": true
-    });
-  }
-</script>
 </body>
 </html>

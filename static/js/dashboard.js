@@ -75,62 +75,10 @@ function applyEntranceAnimation() {
   });
 }
 
-// ── Chart.js Initialization ───────────────────────
-function initTrafficChart() {
-  const ctx = document.getElementById('trafficChart');
-  if (!ctx || typeof Chart === 'undefined') return;
-
-  const startingData = Array.from({length: 20}, () => Math.floor(Math.random() * 40) + 20);
-  const labels = Array.from({length: 20}, (_, i) => i + "s ago").reverse();
-
-  const chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Traffic (MB/s)',
-        data: startingData,
-        borderColor: '#00d4ff',
-        backgroundColor: 'rgba(0, 212, 255, 0.05)',
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointRadius: 0,
-        pointHoverRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 400 },
-      scales: {
-        x: { display: false },
-        y: {
-          display: true,
-          grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          min: 0,
-          max: 100,
-          ticks: { color: '#7a8299', maxTicksLimit: 5 }
-        }
-      },
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-      interaction: { mode: 'nearest', axis: 'x', intersect: false }
-    }
-  });
-
-  setInterval(() => {
-    const newVal = Math.floor(Math.random() * 40) + 20;
-    chart.data.datasets[0].data.push(newVal);
-    chart.data.datasets[0].data.shift();
-    chart.update();
-  }, 2000);
-}
-
 // ── Init ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   applyEntranceAnimation();
   animateProgressBars();
   initStats();
   initSparkBars();
-  initTrafficChart();
 });

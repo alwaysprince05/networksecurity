@@ -133,13 +133,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 25);
     }, i * 150);
   });
-
-  // ── Initialize DataTables ─────────────────────
-  if (typeof $ !== 'undefined' && $.fn.DataTable && $('.results-table').length) {
-    $('.results-table').DataTable({
-      pageLength: 10,
-      order: [], // Keeps original ordering by default
-      language: { search: "🔍 Search:" }
-    });
-  }
 });
