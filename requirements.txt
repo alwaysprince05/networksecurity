@@ -12,5 +12,5 @@ uvicorn
 python-multipart
 jinja2
 aiofiles
-
+awscli
 ##-e .

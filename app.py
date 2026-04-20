@@ -54,6 +54,10 @@ app.add_middleware(
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Ensure prediction_output exists and mount it for downloads
+os.makedirs("prediction_output", exist_ok=True)
+app.mount("/prediction_output", StaticFiles(directory="prediction_output"), name="prediction_output")
+
 # Jinja2 templates
 templates = Jinja2Templates(directory="templates")
 
