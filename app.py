@@ -156,4 +156,8 @@ async def api_status():
 
 
 if __name__ == "__main__":
+    print("\n" + "="*55)
+    print("🚀 App is running! Cmd + Click the link below:")
+    print("👉 http://localhost:8000")
+    print("="*55 + "\n")
     app_run(app, host="0.0.0.0", port=8000)
