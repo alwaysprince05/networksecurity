@@ -78,35 +78,35 @@
     padding: 18px 56px;
     font-size: 17px;
     border-radius: var(--radius-lg);
-    background: var(--grad-cyan);
-    color: #000;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     border: none;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    box-shadow: 0 6px 32px rgba(0,212,255,0.35);
+    box-shadow: 0 6px 32px var(--btn-primary-shadow);
     transition: var(--transition);
     font-family: var(--font-sans);
   }
 
   .big-train-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 48px rgba(0,212,255,0.45);
+    box-shadow: 0 12px 48px var(--btn-primary-shadow);
   }
 
   .big-train-btn:active { transform: scale(0.98); }
   .big-train-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
   .log-terminal {
-    background: #07091a;
+    background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--accent-cyan);
+    color: var(--text-primary);
     height: 240px;
     overflow-y: auto;
     line-height: 1.8;
@@ -147,33 +147,33 @@
     <!-- Config Card -->
     <div class="card mb-lg">
       <div class="card-header">
-        <div class="card-title">⚙️ Training Configuration</div>
+        <div class="card-title">Training Configuration</div>
         <span class="badge badge-info">Auto-tune ON</span>
       </div>
       <div class="card-body">
         <div style="display: flex; flex-direction: column; gap: var(--space-md);">
           <div class="metric-row">
-            <span class="metric-label">📦 Data Source</span>
+            <span class="metric-label"> Data Source</span>
             <span class="metric-val font-mono text-cyan">MongoDB · PRINCEAI</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">📂 Collection</span>
+            <span class="metric-label"> Collection</span>
             <span class="metric-val font-mono">NetworkData</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">📊 Train / Test Split</span>
+            <span class="metric-label"> Train / Test Split</span>
             <span class="metric-val font-mono">80% / 20%</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">🎯 Target Column</span>
+            <span class="metric-label"> Target Column</span>
             <span class="metric-val font-mono">Result</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">🤖 Models Evaluated</span>
+            <span class="metric-label"> Models Evaluated</span>
             <span class="metric-val font-mono">5 classifiers</span>
           </div>
           <div class="metric-row">
-            <span class="metric-label">📈 Min Accuracy</span>
+            <span class="metric-label"> Min Accuracy</span>
             <span class="metric-val font-mono text-green">60%</span>
           </div>
         </div>
@@ -183,40 +183,35 @@
     <!-- Models Card -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">🤖 Models in Competition</div>
+        <div class="card-title"> Models in Competition</div>
       </div>
       <div class="card-body">
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <div class="stage-item">
-            <span class="stage-icon">🌳</span>
             <div class="stage-info">
               <div class="stage-name">Random Forest</div>
               <div class="stage-desc">n_estimators: [8,16,32,128,256]</div>
             </div>
           </div>
           <div class="stage-item">
-            <span class="stage-icon">🌿</span>
             <div class="stage-info">
               <div class="stage-name">Decision Tree</div>
               <div class="stage-desc">criterion: gini, entropy, log_loss</div>
             </div>
           </div>
           <div class="stage-item">
-            <span class="stage-icon">⚡</span>
             <div class="stage-info">
               <div class="stage-name">Gradient Boosting</div>
               <div class="stage-desc">learning_rate, n_estimators: grid search</div>
             </div>
           </div>
           <div class="stage-item">
-            <span class="stage-icon">📉</span>
             <div class="stage-info">
               <div class="stage-name">Logistic Regression</div>
               <div class="stage-desc">Default params</div>
             </div>
           </div>
           <div class="stage-item">
-            <span class="stage-icon">🔁</span>
             <div class="stage-info">
               <div class="stage-name">AdaBoost</div>
               <div class="stage-desc">learning_rate, n_estimators: grid search</div>
@@ -233,7 +228,7 @@
     <!-- Pipeline Stages -->
     <div class="card mb-lg">
       <div class="card-header">
-        <div class="card-title">🔄 Pipeline Progress</div>
+        <div class="card-title"> Pipeline Progress</div>
         <span class="badge badge-info" id="pipeline-badge">Idle</span>
       </div>
       <div class="card-body">
@@ -244,7 +239,6 @@
 
         <div class="pipeline-stages" id="pipeline-stages">
           <div class="stage-item" id="stage-ingestion">
-            <span class="stage-icon">📦</span>
             <div class="stage-info">
               <div class="stage-name">Data Ingestion</div>
               <div class="stage-desc">Fetch from MongoDB</div>
@@ -252,7 +246,6 @@
             <div class="stage-status idle" id="status-ingestion">● Waiting</div>
           </div>
           <div class="stage-item" id="stage-validation">
-            <span class="stage-icon">✅</span>
             <div class="stage-info">
               <div class="stage-name">Data Validation</div>
               <div class="stage-desc">Schema & drift check</div>
@@ -260,7 +253,6 @@
             <div class="stage-status idle" id="status-validation">● Waiting</div>
           </div>
           <div class="stage-item" id="stage-transformation">
-            <span class="stage-icon">⚡</span>
             <div class="stage-info">
               <div class="stage-name">Data Transformation</div>
               <div class="stage-desc">KNN imputation + scaling</div>
@@ -268,7 +260,6 @@
             <div class="stage-status idle" id="status-transformation">● Waiting</div>
           </div>
           <div class="stage-item" id="stage-training">
-            <span class="stage-icon">🤖</span>
             <div class="stage-info">
               <div class="stage-name">Model Training</div>
               <div class="stage-desc">GridSearch across 5 models</div>
@@ -276,7 +267,6 @@
             <div class="stage-status idle" id="status-training">● Waiting</div>
           </div>
           <div class="stage-item" id="stage-sync">
-            <span class="stage-icon">☁️</span>
             <div class="stage-info">
               <div class="stage-name">S3 Sync</div>
               <div class="stage-desc">Push artifacts & model to S3</div>
@@ -290,7 +280,7 @@
     <!-- Launch Button -->
     <div class="train-btn-wrap">
       <button class="big-train-btn" id="launch-train-btn" onclick="startTraining()">
-        🚀 Launch Training Pipeline
+         Launch Training Pipeline
       </button>
     </div>
 
@@ -300,7 +290,7 @@
     <!-- Log Terminal -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">💻 Training Log</div>
+        <div class="card-title"> Training Log</div>
         <button class="btn btn-outline btn-sm" onclick="clearLog()">Clear</button>
       </div>
       <div class="card-body" style="padding: 0;">
@@ -316,5 +306,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/js/train.js"></script>
+<script src="/static/js/train.js?v=2"></script>
 {% endblock %}

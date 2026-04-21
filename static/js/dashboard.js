@@ -20,6 +20,19 @@ function animateCounter(el, target, duration = 1500, suffix = '') {
   requestAnimationFrame(update);
 }
 
+
+function animateFloat(el, target, duration = 1500) {
+  const startTime = performance.now();
+  function update(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = (target * eased).toFixed(2);
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
 // ── Init Dashboard Stats ──────────────────────────
 function initStats() {
   const packetsEl  = document.getElementById('stat-packets');
@@ -28,6 +41,15 @@ function initStats() {
 
   if (packetsEl)  animateCounter(packetsEl,  124853, 2000);
   if (threatsEl)  animateCounter(threatsEl,  1842,   1800);
+  
+  const f1El = document.getElementById('f1-score');
+  const precisionEl = document.getElementById('precision-score');
+  const recallEl = document.getElementById('recall-score');
+
+  if (f1El) animateFloat(f1El, 0.97, 1800);
+  if (precisionEl) animateFloat(precisionEl, 0.98, 1900);
+  if (recallEl) animateFloat(recallEl, 0.96, 2000);
+
   if (accuracyEl) {
     // Animate float
     let count = 0;
@@ -40,7 +62,51 @@ function initStats() {
   }
 }
 
+
 // ── Sparkbar Animation ────────────────────────────
+
+// ── Init Threat Ring Chart ──────────────────────────────
+function initThreatRingChart() {
+  const ctx = document.getElementById('threatRingChart');
+  if (!ctx) return;
+
+  const dataValues = [85, 15];
+  const colors = ['#00d26a', '#ff4b4b'];
+  
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Normal Traffic', 'Malicious Traffic'],
+      datasets: [{
+        data: dataValues,
+        backgroundColor: colors,
+        borderWidth: 0,
+        hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '78%',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false }
+      },
+      onHover: (event, activeElements) => {
+        const centerText = document.getElementById('chartCenterText');
+        if (activeElements?.length > 0) {
+          const index = activeElements[0].index;
+          centerText.textContent = dataValues[index] + '%';
+          centerText.style.color = colors[index];
+        } else {
+          centerText.textContent = '85%';
+          centerText.style.color = colors[0]; // Set to Normal Green color for default
+        }
+      }
+    }
+  });
+}
+
 function initSparkBars() {
   document.querySelectorAll('.spark-bar').forEach(bar => {
     const cols = bar.querySelectorAll('.spark-bar-col');
@@ -80,5 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applyEntranceAnimation();
   animateProgressBars();
   initStats();
+  
   initSparkBars();
+  initThreatRingChart();
 });

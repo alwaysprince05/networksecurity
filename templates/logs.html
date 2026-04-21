@@ -34,7 +34,7 @@
   .filter-btn.active-error { border-color: var(--accent-red); color: var(--accent-red); background: rgba(255,71,87,0.08); }
 
   .log-block {
-    background: #07091a;
+    background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -67,23 +67,24 @@
 
   .log-entry {
     display: flex;
+    align-items: flex-start;
     gap: var(--space-sm);
     padding: 3px 0;
     border-radius: 3px;
-    padding: 2px 4px;
+    padding: 4px;
     transition: background 0.15s;
   }
 
   .log-entry:hover { background: rgba(255,255,255,0.03); }
 
-  .log-ts { color: #3a4a6b; min-width: 85px; flex-shrink: 0; }
-  .log-level { min-width: 56px; flex-shrink: 0; font-weight: 600; text-align: center; border-radius: 3px; padding: 0 4px; }
+  .log-ts { color: #3a4a6b; min-width: 85px; flex-shrink: 0; padding-top: 1px; }
+  .log-level { min-width: 56px; flex-shrink: 0; font-weight: 600; text-align: center; border-radius: 3px; padding: 0 4px; margin-top: 1px; }
   .level-info  { color: var(--accent-cyan);   background: rgba(0,212,255,0.08); }
   .level-ok    { color: var(--accent-green);  background: rgba(0,230,118,0.08); }
   .level-warn  { color: var(--accent-orange); background: rgba(255,165,2,0.08); }
   .level-error { color: var(--accent-red);    background: rgba(255,71,87,0.08); }
 
-  .log-msg { color: var(--text-primary); }
+  .log-msg { color: var(--text-primary); word-break: break-word; }
   .log-msg .highlight { color: var(--accent-cyan); }
 
   .stats-mini {
@@ -154,7 +155,7 @@
 <!-- Log Block -->
 <div class="log-block">
   <div class="log-block-header">
-    <span class="log-block-title">📋 networksecurity.log</span>
+    <span class="log-block-title"> networksecurity.log</span>
     <span class="font-mono" style="font-size: 11px; color: var(--text-muted);" id="log-update-time">Loading...</span>
   </div>
   <div class="log-entries" id="log-entries">
@@ -167,30 +168,29 @@
 {% block extra_js %}
 <script>
   // Sample log data — in production this would be fetched from /api/logs
-  const SAMPLE_LOGS = [
-    { ts: '10:44:21', level: 'ok',   msg: 'Training pipeline completed successfully' },
-    { ts: '10:44:18', level: 'info', msg: 'Starting model evaluation with GridSearchCV' },
-    { ts: '10:43:55', level: 'info', msg: 'Data transformation complete — 12,000 records transformed' },
-    { ts: '10:43:30', level: 'ok',   msg: 'Data validation passed — no schema drift detected' },
-    { ts: '10:43:10', level: 'info', msg: 'Data ingestion started from MongoDB · collection: NetworkData' },
-    { ts: '10:42:58', level: 'ok',   msg: 'MongoDB connection established successfully' },
-    { ts: '10:42:45', level: 'info', msg: 'FastAPI application started on 0.0.0.0:8080' },
-    { ts: '10:41:30', level: 'warn', msg: 'Column [having_Sub_Domain] has 3.2% missing values — applying KNN imputer' },
-    { ts: '10:40:12', level: 'info', msg: 'Prediction request received — phishing_test.csv (2,450 rows)' },
-    { ts: '10:39:58', level: 'ok',   msg: 'Prediction completed — 2,100 normal, 350 malicious' },
-    { ts: '10:38:40', level: 'warn', msg: 'Model accuracy slightly below threshold on test set (0.59)' },
-    { ts: '10:37:15', level: 'error', msg: 'S3 sync failed — check AWS credentials or bucket permissions' },
-    { ts: '10:36:00', level: 'info', msg: 'MLflow tracking experiment started' },
-    { ts: '10:35:45', level: 'ok',   msg: 'Best model selected: Random Forest · F1=0.974 · Precision=0.981' },
-    { ts: '10:35:10', level: 'info', msg: 'AdaBoost training complete — score: 0.89' },
-    { ts: '10:34:40', level: 'info', msg: 'GradientBoosting training complete — score: 0.92' },
-    { ts: '10:34:00', level: 'info', msg: 'Decision Tree training complete — score: 0.95' },
-    { ts: '10:33:20', level: 'info', msg: 'Random Forest training complete — score: 0.97' },
-    { ts: '10:32:00', level: 'info', msg: 'Logistic Regression training complete — score: 0.78' },
-  ];
+  
+
+  let logData = [];
+  
+  async function fetchLogs() {
+    document.getElementById('log-update-time').textContent = 'Refreshing...';
+    try {
+      const response = await fetch('/api/logs');
+      if (!response.ok) throw new Error('API Error');
+      const data = await response.json();
+      logData = data;
+    } catch (e) {
+      console.error("Fetch logs failed", e);
+      logData = [{ts: '--:--', level: 'error', msg: 'Failed to fetch tracking logs from backend.'}];
+    }
+    
+    document.getElementById('log-update-time').textContent = `Last updated: ${new Date().toLocaleTimeString('en-IN', { hour12: false })}`;
+    filterLogs(activeFilter);
+    updateMiniStats();
+  }
 
   let activeFilter = 'all';
-  let logData = [...SAMPLE_LOGS];
+  /* logData initialized in fetchLogs */
 
   function renderLogs(data) {
     const container = document.getElementById('log-entries');
@@ -228,12 +228,7 @@
   }
 
   function refreshLogs() {
-    document.getElementById('log-update-time').textContent = 'Refreshing...';
-    setTimeout(() => {
-      const now = new Date().toLocaleTimeString('en-IN', { hour12: false });
-      document.getElementById('log-update-time').textContent = `Last updated: ${now}`;
-      filterLogs(activeFilter);
-    }, 600);
+    fetchLogs();
   }
 
   function clearDisplay() {
@@ -242,8 +237,8 @@
   }
 
   // Init
-  updateMiniStats();
-  filterLogs('all');
-  document.getElementById('log-update-time').textContent = `Last updated: ${new Date().toLocaleTimeString('en-IN', { hour12: false })}`;
+  fetchLogs();
+  // Set auto-refresh every 5 seconds
+  setInterval(fetchLogs, 5000);
 </script>
 {% endblock %}

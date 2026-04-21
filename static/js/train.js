@@ -88,38 +88,38 @@ async function startTraining() {
   resultBanner.style.display = 'none';
   setBadge('Running', 'warning');
 
-  logLine('🚀 Training pipeline initiated', 'info');
-  logLine('📡 Connecting to MongoDB — PRINCEAI / NetworkData', 'info');
+  logLine('Training pipeline initiated', 'info');
+  logLine('Connecting to MongoDB — PRINCEAI / NetworkData', 'info');
 
   try {
     // ── Stage 1: Data Ingestion ────────────────
     setStageRunning('ingestion');
     setProgress(5);
     await delay(1200);
-    logLine('✅ Data Ingestion — 15,000 records fetched from MongoDB', 'ok');
+    logLine('Data Ingestion — 15,000 records fetched from MongoDB', 'ok');
     setStageComplete('ingestion');
     setProgress(15);
 
     // ── Stage 2: Data Validation ──────────────
     await delay(400);
     setStageRunning('validation');
-    logLine('🔍 Validating schema against data_schema/schema.yaml', 'info');
+    logLine('Validating schema against data_schema/schema.yaml', 'info');
     await delay(1000);
-    logLine('✅ Data Validation — No drift detected', 'ok');
+    logLine('Data Validation — No drift detected', 'ok');
     setStageComplete('validation');
     setProgress(35);
 
     // ── Stage 3: Data Transformation ─────────
     await delay(400);
     setStageRunning('transformation');
-    logLine('⚡ Applying KNN imputer (n_neighbors=3)', 'info');
+    logLine('Applying KNN imputer (n_neighbors=3)', 'info');
     await delay(1400);
-    logLine('✅ Data Transformation — Train/Test arrays saved as .npy', 'ok');
+    logLine('Data Transformation — Train/Test arrays saved as .npy', 'ok');
     setStageComplete('transformation');
     setProgress(55);
 
     // ── API call to actually train ─────────────
-    logLine('🤖 Starting model training — 5 classifiers with GridSearchCV', 'info');
+    logLine('Starting model training — 5 classifiers with GridSearchCV', 'info');
     logLine('   → RandomForest, GradientBoosting, AdaBoost, DecisionTree, LR', 'info');
 
     setStageRunning('training');
@@ -135,33 +135,33 @@ async function startTraining() {
     }
 
     const result = await response.json();
-    logLine(`✅ ${result.message || 'Training completed successfully'}`, 'ok');
+    logLine(`${result.message || 'Training completed successfully'}`, 'ok');
     setStageComplete('training');
     setProgress(85);
 
     // ── Stage 5: S3 Sync ──────────────────────
     await delay(600);
     setStageRunning('sync');
-    logLine('☁️  Syncing artifacts to S3 — s3://networksecurity05e/', 'info');
+    logLine('Syncing artifacts to S3 — s3://networksecurity05e/', 'info');
     await delay(1200);
-    logLine('✅ S3 Sync complete — model + artifacts uploaded', 'ok');
+    logLine('S3 Sync complete — model + artifacts uploaded', 'ok');
     setStageComplete('sync');
     setProgress(100);
 
     // ── Success ───────────────────────────────
     setBadge('Completed', 'success');
-    logLine('🎉 Pipeline complete! Model ready for predictions.', 'ok');
+    logLine('Pipeline complete! Model ready for predictions.', 'ok');
 
     resultBanner.style.display = 'block';
     resultBanner.innerHTML = `
       <div class="alert alert-success">
-        ✅ Training pipeline completed successfully! Head to
+        Training pipeline completed successfully! Head to
         <a href="/predict-ui" style="color: inherit; font-weight: 600; text-decoration: underline;">Run Prediction</a>
         to test the model.
       </div>`;
 
   } catch (err) {
-    logLine(`❌ Error: ${err.message}`, 'err');
+    logLine(`Error: ${err.message}`, 'err');
 
     // Mark current running stage as failed
     STAGES.forEach(s => {
@@ -173,12 +173,12 @@ async function startTraining() {
     resultBanner.style.display = 'block';
     resultBanner.innerHTML = `
       <div class="alert alert-danger">
-        ❌ Training failed: ${err.message}. Check the log for details.
+        Training failed: ${err.message}. Check the log for details.
       </div>`;
   }
 
   btn.disabled = false;
-  btn.innerHTML = '🔄 Run Pipeline Again';
+  btn.innerHTML = 'Run Pipeline Again';
   isTraining = false;
 }
 

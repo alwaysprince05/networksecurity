@@ -88,17 +88,17 @@
 <!-- Summary Bar -->
 <div class="summary-bar">
   <div class="summary-card">
-    <span class="s-icon">📊</span>
+    <span class="s-icon"></span>
     <div class="s-label">Total Records</div>
     <div class="s-value" style="color: var(--accent-cyan);">{{ total_rows }}</div>
   </div>
   <div class="summary-card">
-    <span class="s-icon">🟢</span>
+    <span class="s-icon"></span>
     <div class="s-label">Normal</div>
     <div class="s-value" style="color: var(--accent-green);">{{ normal_count }}</div>
   </div>
   <div class="summary-card">
-    <span class="s-icon">🔴</span>
+    <span class="s-icon"></span>
     <div class="s-label">Malicious</div>
     <div class="s-value" style="color: var(--accent-red);">{{ malicious_count }}</div>
   </div>
@@ -107,7 +107,7 @@
 <!-- Action row -->
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md);">
   <div>
-    <span style="font-size: 15px; font-weight: 600; color: var(--text-primary);">📋 Prediction Results</span>
+    <span style="font-size: 15px; font-weight: 600; color: var(--text-primary);"> Prediction Results</span>
     {% if filename %}
     <div class="file-name-display" style="display: inline-flex; margin-left: var(--space-md);">
       📁 {{ filename }}
@@ -133,14 +133,14 @@
 
   <div class="card mb-lg">
     <div class="card-header">
-      <div class="card-title">🔍 Network Traffic Prediction</div>
+      <div class="card-title"> Network Traffic Prediction</div>
       <span class="badge badge-info">ML Model Ready</span>
     </div>
     <div class="card-body">
       <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-lg); line-height: 1.7;">
         Upload a CSV file containing network traffic features. The model will classify each row as
-        <span class="badge badge-success" style="font-size: 11px;">🟢 Normal</span> or
-        <span class="badge badge-danger" style="font-size: 11px;">🔴 Malicious</span>
+        <span class="badge badge-success" style="font-size: 11px;">Normal</span> or
+        <span class="badge badge-danger" style="font-size: 11px;">Malicious</span>
         traffic using the trained Random Forest model.
       </p>
 
@@ -161,7 +161,7 @@
 
         <div style="margin-top: var(--space-lg); display: flex; justify-content: center;">
           <button type="submit" class="btn btn-success btn-lg" id="predict-submit-btn" disabled>
-            🔍 Analyze & Predict
+             Analyze & Predict
           </button>
         </div>
       </form>
@@ -172,7 +172,7 @@
   <div class="grid-2">
     <div class="card">
       <div class="card-header">
-        <div class="card-title">📋 Expected Format</div>
+        <div class="card-title"> Expected Format</div>
       </div>
       <div class="card-body">
         <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">
@@ -198,7 +198,7 @@
 
     <div class="card">
       <div class="card-header">
-        <div class="card-title">🎯 Model Info</div>
+        <div class="card-title"> Model Info</div>
       </div>
       <div class="card-body">
         <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.8;">

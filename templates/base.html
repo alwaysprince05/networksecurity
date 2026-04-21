@@ -7,16 +7,23 @@
   <title>{% block title %}NetworkSecurity IDS{% endblock %}</title>
 
   <!-- Design System CSS -->
-  <link rel="stylesheet" href="/static/css/base.css" />
-  <link rel="stylesheet" href="/static/css/components.css" />
+  <link rel="stylesheet" href="/static/css/base.css?v=2" />
+  <link rel="stylesheet" href="/static/css/components.css?v=2" />
 
   <!-- Page-specific CSS -->
   {% block extra_css %}{% endblock %}
+
+  <!-- Theme initialization to prevent flash -->
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
 </head>
 <body>
+<div class="animated-mesh-bg"></div>
 <div class="app-layout">
 
   <!-- ── Sidebar ─────────────────────────────── -->
@@ -35,23 +42,23 @@
     <nav class="sidebar-nav" aria-label="Main navigation">
       <span class="nav-section-label">Overview</span>
       <a href="/"           class="nav-item {% if request.url.path == '/' %}active{% endif %}" id="nav-dashboard">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span> Dashboard
       </a>
 
       <span class="nav-section-label">ML Pipeline</span>
       <a href="/train-ui"   class="nav-item {% if request.url.path == '/train-ui' %}active{% endif %}" id="nav-train">
-        <span class="nav-icon">🚀</span> Train Model
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></span> Train Model
       </a>
       <a href="/predict-ui" class="nav-item {% if request.url.path == '/predict-ui' %}active{% endif %}" id="nav-predict">
-        <span class="nav-icon">🔍</span> Run Prediction
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg></span> Run Prediction
       </a>
 
       <span class="nav-section-label">Monitoring</span>
       <a href="/logs-ui"    class="nav-item {% if request.url.path == '/logs-ui' %}active{% endif %}" id="nav-logs">
-        <span class="nav-icon">📋</span> System Logs
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></span> System Logs
       </a>
       <a href="/docs"       class="nav-item" id="nav-docs" target="_blank">
-        <span class="nav-icon">📖</span> API Docs
+        <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></span> API Docs
       </a>
     </nav>
 
@@ -74,6 +81,9 @@
         <span class="page-breadcrumb">{% block page_breadcrumb %}NetworkSecurity IDS{% endblock %}</span>
       </div>
       <div class="topbar-right">
+        <button id="theme-toggle" class="btn btn-outline btn-sm" aria-label="Toggle Theme" style="padding: 4px 8px; border: none; font-size: 16px; background: transparent; cursor: pointer;">
+          ☀️
+        </button>
         <span class="topbar-time font-mono" id="topbar-clock">--:--:--</span>
         <span class="badge-live">● LIVE</span>
       </div>
@@ -117,6 +127,23 @@
   }
   checkHealth();
   setInterval(checkHealth, 30000);
+
+  // Theme Toggle Logic
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  function updateThemeIcon() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    themeToggleBtn.textContent = currentTheme === 'light' ? '🌙' : '☀️';
+  }
+  if (themeToggleBtn) {
+    updateThemeIcon();
+    themeToggleBtn.addEventListener('click', () => {
+      let currentTheme = document.documentElement.getAttribute('data-theme');
+      let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon();
+    });
+  }
 </script>
 
 {% block extra_js %}{% endblock %}

@@ -52,6 +52,77 @@ app.add_middleware(
 )
 
 # Mount static files directory
+
+import glob
+import re
+
+@app.get("/api/logs")
+async def get_system_logs():
+    try:
+        log_dir = os.path.join(os.getcwd(), "logs")
+        if not os.path.exists(log_dir):
+            return JSONResponse(status_code=200, content=[])
+            
+        list_of_files = glob.glob(f'{log_dir}/*/*.log')
+        if not list_of_files:
+            # Fallback if logs are direct children
+            list_of_files = glob.glob(f'{log_dir}/*.log')
+            if not list_of_files:
+                return JSONResponse(status_code=200, content=[])
+                
+        # Filter strictly for files that actually contain log data
+        filled_files = [f for f in list_of_files if os.path.getsize(f) > 0]
+        if not filled_files:
+            return JSONResponse(status_code=200, content=[])
+            
+        latest_file = max(filled_files, key=os.path.getmtime)
+        
+        parsed_logs = []
+        log_pattern = re.compile(r'\[\s*(.*?)\s*\]\s*\d+\s+.*?\s+-\s+(INFO|WARNING|ERROR|DEBUG|CRITICAL)\s+-\s+(.*)')
+        
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            
+        # Parse from newest (bottom) to oldest (top)
+        for line in reversed(lines):
+            match = log_pattern.match(line)
+            if match:
+                ts, level, msg = match.groups()
+                
+                # Filter out noisy, low-level debugging logs from UI
+                if msg.startswith("Entered") or msg.startswith("Exited") or "method of" in msg:
+                    continue
+                    
+                time_only = ts.split(' ')[1].split(',')[0] if ' ' in ts else ts
+                
+                ui_level = "info"
+                lvl_upper = level.upper()
+                if lvl_upper == "INFO":
+                    if "success" in msg.lower() or "complete" in msg.lower() or "passed" in msg.lower() or "started" in msg.lower():
+                        ui_level = "ok" if "started" not in msg.lower() else "info"
+                    else:
+                        ui_level = "info"
+                elif lvl_upper == "WARNING":
+                    ui_level = "warn"
+                elif lvl_upper in ["ERROR", "CRITICAL"]:
+                    ui_level = "error"
+                
+                parsed_logs.append({
+                    "ts": time_only[-8:] if len(time_only) >= 8 else time_only,  # ensure HH:MM:SS
+                    "level": ui_level,
+                    "msg": msg.strip()
+                })
+                
+                if len(parsed_logs) >= 200:
+                    break
+                    
+        return JSONResponse(status_code=200, content=parsed_logs)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Ensure prediction_output exists and mount it for downloads

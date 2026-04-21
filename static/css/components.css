@@ -8,11 +8,14 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
   padding: var(--space-lg);
   position: relative;
   overflow: hidden;
   transition: var(--transition);
   cursor: default;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .stat-card::before {
@@ -26,7 +29,7 @@
 .stat-card:hover {
   background: var(--bg-card-hover);
   border-color: var(--accent-cyan);
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.02);
   box-shadow: var(--glow-cyan);
 }
 
@@ -94,8 +97,11 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
   transition: var(--transition);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .card-header {
@@ -152,12 +158,15 @@
 .btn:active       { transform: scale(0.97); }
 
 .btn-primary {
-  background: var(--grad-cyan);
-  color: #000;
-  box-shadow: 0 4px 16px rgba(0,212,255,0.25);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  box-shadow: 0 4px 16px var(--btn-primary-shadow);
 }
 
-.btn-primary:hover { box-shadow: 0 6px 24px rgba(0,212,255,0.4); }
+.btn-primary:hover { 
+  box-shadow: 0 6px 24px var(--btn-primary-shadow); 
+  transform: translateY(-1px);
+}
 
 .btn-success {
   background: var(--grad-green);
@@ -237,7 +246,7 @@
 
 /* ── Progress Bars ───────────────────────────────── */
 .progress-bar-wrap {
-  background: rgba(255,255,255,0.06);
+  background: var(--bg-hover-strong);
   border-radius: 999px;
   height: 6px;
   overflow: hidden;
@@ -285,7 +294,7 @@
 .results-table td,
 .data-table td {
   padding: 11px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--bg-hover-subtle);
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 12px;
@@ -416,7 +425,7 @@
   align-items: flex-start;
   gap: var(--space-md);
   padding: var(--space-sm) 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--bg-hover-subtle);
 }
 
 .activity-dot {
@@ -441,7 +450,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-sm) 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--bg-hover-subtle);
 }
 
 .metric-row:last-child { border-bottom: none; }
@@ -491,7 +500,9 @@
 }
 
 @media (max-width: 700px) {
-  .sidebar { transform: translateX(-100%); }
+  .sidebar { transform: translateX(-100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px); }
   .main-content { margin-left: 0; }
   .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .page-content { padding: var(--space-md); }
