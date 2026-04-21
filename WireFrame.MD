@@ -121,7 +121,7 @@ Allows security administrators to upload raw CSV network data for real-time mode
 - Immediate threat classification breakdown
 - Highlighted anomalous traffic rows
 
-![Wireframe 8](assets/image8.png)
+![Threat Prediction & Upload Interface](assets/image8.png)
 
 ---
 
@@ -136,7 +136,7 @@ Displays the geographic origin of incoming attacks and suspicious inbound traffi
 - Threat intensity by region
 - Blacklisted country filters
 
-![Wireframe 9](assets/image9.png)
+![Geolocation Threat Map](assets/image9.png)
 
 ---
 
@@ -151,7 +151,7 @@ Monitors the lifecycle of the Machine Learning training process.
 - Final model accuracy and F1 scores
 - One-click model retraining
 
-![Wireframe 10](assets/image10.png)
+![Model Training Pipeline](assets/image10.png)
 
 ---
 
@@ -166,7 +166,7 @@ Provides a central hub to manage firewall policies and block malicious signature
 - Port and Protocol restrictions
 - Active rule lifecycle tracking
 
-![Wireframe 11](assets/image11.png)
+![Firewall & Rule Configuration](assets/image11.png)
 
 ---
 
@@ -181,7 +181,7 @@ Deep dive inspection into live streaming network protocols (TCP, UDP, ICMP).
 - Malformed packet detection
 - Payload length analysis
 
-![Wireframe 12](assets/image12.png)
+![Live Protocol & Packet Analysis](assets/image12.png)
 
 ---
 
@@ -196,7 +196,7 @@ Tracks the underlying server infrastructure utilizing the IDS application.
 - Database latency metrics
 - Out-of-memory attack alerts
 
-![Wireframe 13](assets/image13.png)
+![System Health & Resource Monitor](assets/image13.png)
 
 ---
 
@@ -211,7 +211,7 @@ Aggregate external threat feeds and zero-day vulnerability announcements.
 - Phishing domain blacklists
 - Emerging malware family tracker
 
-![Wireframe 14](assets/image14.png)
+![Threat Intelligence & Dark Web Feed](assets/image14.png)
 
 ---
 
