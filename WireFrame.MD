@@ -1,217 +1,204 @@
-# 🖥️ Network Security System – Wireframes
+# 🖥️ Network Security System – Wireframes & Screenshots
 
-This document showcases the key wireframes of the **Intrusion Detection & Network Security System UI**.  
-Each screen is designed to provide clarity, actionable insights, and seamless navigation.
-
----
-
-## 📊 Dashboard — Network Overview
-
-**Purpose:**  
-Provides a high-level summary of the network’s health and security posture.
-
-**Features:**
-- Summary metrics (traffic, threats, uptime)
-- System health indicators
-- Quick access widgets
-- Real-time analytics snapshots
-
-![Dashboard](assets/image1.png)
+This document showcases the key wireframes and screenshots of the **Intrusion Detection & Network Security System UI** alongside deployment configurations.
+Each screen is described to provide clarity on its purpose and features.
 
 ---
 
-## 🌐 Network Topology Map
+## ☁️ AWS Elastic Container Registry (ECR)
 
 **Purpose:**  
-Visual representation of devices and their connections.
+Demonstrates the successful push of the Docker image to AWS ECR.
 
 **Features:**
-- Interactive network graph
-- Device/node visualization
-- Zoom and filtering
-- Highlight suspicious nodes
+- Repository visibility (`networkssecurity`)
+- Image tag (`latest`)
+- Artifact size and push timestamp
 
-![Network Topology Map](assets/image2.png)
+![AWS ECR](assets/image1.png)
 
 ---
 
-## 🚨 Live Alerts & Notifications
+## 💻 AWS EC2 Instances
 
 **Purpose:**  
-Displays real-time alerts for quick response.
+Shows the active EC2 instance running the deployed Network Security application.
 
 **Features:**
-- Severity levels (High, Medium, Low)
-- Live alert feed
-- Notification system
-- Action buttons (acknowledge, resolve)
+- Instance ID and state (Running)
+- IPv4 address details
+- Status checks and instance type (`t2.large`)
 
-![Live Alerts & Notifications](assets/image3.png)
+![AWS EC2 Instances](assets/image2.png)
 
 ---
 
-## 🛠️ Incident Details
+## 🔌 FastAPI Swagger UI — Routes
 
 **Purpose:**  
-Detailed view of detected incidents.
+Overview of the available API endpoints provided by the FastAPI backend.
 
 **Features:**
-- Incident timeline
-- Affected systems
-- Root cause analysis
-- Recommended actions
+- UI routes (`/train-ui`, `/predict-ui`, etc.)
+- API routes (`/train`, `/predict`)
+- Interactive documentation interface
 
-![Incident Details](assets/image4.png)
+![FastAPI Routes](assets/image3.png)
 
 ---
 
-## 🔍 Vulnerability Scan Results
+## 📡 FastAPI — Predict Route Details
 
 **Purpose:**  
-Shows vulnerabilities and remediation progress.
+Detailed view of the `POST /predict` API endpoint.
 
 **Features:**
-- Scan summary
-- Affected hosts
-- Risk levels
-- Fix recommendations
+- Request body requirements
+- `multipart/form-data` format
+- Required `file` parameter for CSV upload
 
-![Vulnerability Scan Results](assets/image5.png)
+![Predict Route Details](assets/image4.png)
 
 ---
 
-## 👥 User & Access Management
+## 📤 FastAPI — Prediction Execution
 
 **Purpose:**  
-Manage users and permissions.
+Testing the `POST /predict` endpoint directly through the Swagger UI.
 
 **Features:**
-- User accounts
-- Role-based access control
-- Permission settings
-- Activity logs
+- File selection interface (`test.csv` uploaded)
+- Execution trigger button
+- Parameter configuration
 
-![User & Access Management](assets/image6.png)
+![Prediction Execution](assets/image5.png)
 
 ---
 
-## 📑 Reports & Audit Logs
+## 📄 FastAPI — Prediction Response Body
 
 **Purpose:**  
-Track activity and generate reports.
+Displays the executed curl command and the resulting HTML response body.
 
 **Features:**
-- Export reports (PDF/CSV)
-- Audit logs
-- Filters and search
-- Compliance tracking
+- Auto-generated curl command for the request
+- HTML response rendering a data table with prediction results
+- `200` status code
 
-![Reports & Audit Logs](assets/image7.png)
+![Prediction Response Body](assets/image6.png)
 
 ---
 
-## 🔮 Threat Prediction & Upload Interface
+## 🛠️ FastAPI — Prediction Response Headers
 
 **Purpose:**  
-Allows security administrators to upload raw CSV network data for real-time model prediction.
+Shows the server and header details of a successful prediction request.
 
 **Features:**
-- Drag-and-drop CSV upload
-- Real-time scoring and prediction
-- Immediate threat classification breakdown
-- Highlighted anomalous traffic rows
+- `content-type: text/html`
+- Server identifier (`uvicorn`)
+- Access control headers
 
-![Threat Prediction & Upload Interface](assets/image8.png)
+![Prediction Response Headers](assets/image7.png)
 
 ---
 
-## 🛰️ Geolocation Threat Map
+## 📊 Dashboard — Dark Theme
 
 **Purpose:**  
-Displays the geographic origin of incoming attacks and suspicious inbound traffic.
+The main Network Security dashboard providing high-level metrics in a dark aesthetic.
 
 **Features:**
-- World map overlay with heatmaps
-- IP address triangulation
-- Threat intensity by region
-- Blacklisted country filters
+- Analyzed packets and threat tallies
+- Model accuracy and API uptime metrics
+- ML Pipeline status overview
+- Threat Level visualizer
 
-![Geolocation Threat Map](assets/image9.png)
+![Dashboard Dark](assets/image8.png)
 
 ---
 
-## 🤖 Model Training Pipeline
+## 📊 Dashboard — Light Theme
 
 **Purpose:**  
-Monitors the lifecycle of the Machine Learning training process.
+The main Network Security dashboard presented in a lighter, high-contrast aesthetic.
 
 **Features:**
-- Data Ingestion & Validation metrics
-- Transformation and Scaling status
-- Final model accuracy and F1 scores
-- One-click model retraining
+- Identical metrics to the dark theme
+- Clean, bright UI layout
+- Threat Level visualizer
 
-![Model Training Pipeline](assets/image10.png)
+![Dashboard Light](assets/image9.png)
 
 ---
 
-## 🛡️ Firewall & Rule Configuration
+## 🤖 Train Model — Configuration 
 
 **Purpose:**  
-Provides a central hub to manage firewall policies and block malicious signatures.
+Interface to configure and initiate the Machine Learning training pipeline.
 
 **Features:**
-- Custom packet filtering rules
-- Automatic IP blocking integration
-- Port and Protocol restrictions
-- Active rule lifecycle tracking
+- Data source configuration (MongoDB)
+- Target column and model evaluation settings
+- Pipeline progress tracker (Idle state)
 
-![Firewall & Rule Configuration](assets/image11.png)
+![Train Model Config](assets/image10.png)
 
 ---
 
-## 📈 Live Protocol & Packet Analysis
+## ✅ Train Model — Completion
 
 **Purpose:**  
-Deep dive inspection into live streaming network protocols (TCP, UDP, ICMP).
+Shows the successful execution of the model training pipeline.
 
 **Features:**
-- Granular packet headers
-- Traffic throughput by protocol
-- Malformed packet detection
-- Payload length analysis
+- Complete markings for Ingestion, Validation, Transformation, Training, and S3 Sync
+- Success notification alert
+- Option to "Run Pipeline Again"
 
-![Live Protocol & Packet Analysis](assets/image12.png)
+![Train Model Completion](assets/image11.png)
 
 ---
 
-## 🖥️ System Health & Resource Monitor
+## 🔮 Run Prediction — Upload Interface
 
 **Purpose:**  
-Tracks the underlying server infrastructure utilizing the IDS application.
+Dedicated UI for uploading network traffic data for threat classification.
 
 **Features:**
-- Live CPU and Memory utilization
-- Container Health (Docker/EC2)
-- Database latency metrics
-- Out-of-memory attack alerts
+- Drag-and-drop CSV file upload area
+- Expected format guidelines (30 network cols)
+- Model information display (Random Forest)
 
-![System Health & Resource Monitor](assets/image13.png)
+![Prediction Interface](assets/image12.png)
 
 ---
 
-## 🕸️ Threat Intelligence & Dark Web Feed
+## 📋 Run Prediction — Results
 
 **Purpose:**  
-Aggregate external threat feeds and zero-day vulnerability announcements.
+Displays the output classification of the uploaded network traffic data.
 
 **Features:**
-- CVE database sync
-- Known malicious IP feeds
-- Phishing domain blacklists
-- Emerging malware family tracker
+- Total records processed tally
+- Tabular viewer of the uploaded features mapped to their predictions
+- Scrollable data table
 
-![Threat Intelligence & Dark Web Feed](assets/image14.png)
+![Prediction Results](assets/image13.png)
+
+---
+
+## 📜 System Logs
+
+**Purpose:**  
+Real-time monitoring of backend system activity and model tracking.
+
+**Features:**
+- Categorized entry totals (Success, Warnings, Errors)
+- Log filtering options
+- Timestamped terminal output (e.g., Data Ingestion, Model trainer artifact initialization)
+
+![System Logs](assets/image14.png)
 
 ---
 
@@ -221,5 +208,3 @@ Aggregate external threat feeds and zero-day vulnerability announcements.
 - Security-focused UI  
 - Data-driven insights  
 - Easy navigation  
-
----
