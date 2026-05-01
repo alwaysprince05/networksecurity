@@ -197,7 +197,8 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
             lambda x: "🔴 Malicious" if x == 0 else "🟢 Normal"
         )
 
-        table_html = df.to_html(
+        # Only render the first 100 rows in HTML to prevent server crashes on huge files
+        table_html = df.head(100).to_html(
             classes="results-table",
             index=False,
             border=0,
