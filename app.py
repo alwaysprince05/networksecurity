@@ -185,10 +185,12 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
     try:
         df = pd.read_csv(file.file)
         
-        # If the user accidentally uploads a training dataset that contains the 'Result' target column,
-        # we must drop it because the model expects only the 30 features.
-        if "Result" in df.columns:
-            df = df.drop(columns=["Result"])
+        # If the user accidentally uploads a training dataset or a previous output.csv,
+        # we must drop the target/output columns because the model expects only the 30 features.
+        cols_to_drop = ["Result", "predicted_column", "Threat Status"]
+        for col in cols_to_drop:
+            if col in df.columns:
+                df = df.drop(columns=[col])
             
         preprocessor = load_object("final_model/preprocessor.pkl")
         final_model = load_object("final_model/model.pkl")
