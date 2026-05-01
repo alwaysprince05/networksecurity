@@ -17,6 +17,8 @@
 
 <div align="center">
   <img src="assets/image8.png" alt="Network Security System Dashboard (Dark)" width="900" style="border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 20px;"/>
+  <br>
+  <img src="assets/image9.png" alt="Network Security System Dashboard (Light)" width="900" style="border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"/>
 </div>
 
 ---
