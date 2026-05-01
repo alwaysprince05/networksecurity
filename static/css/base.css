@@ -10,6 +10,7 @@
 :root[data-theme="dark"] {
   /* Dark Colors */
   --bg-primary:     transparent;
+  --bg-solid:       #0b111e;
   --bg-secondary:   transparent;
   --bg-card:        rgba(19, 25, 41, 0.65);
   --bg-card-hover:  rgba(24, 32, 56, 0.85);
@@ -49,6 +50,7 @@
 :root[data-theme="light"] {
   /* Light Colors */
   --bg-primary:     transparent;
+  --bg-solid:       #f4f7f9;
   --bg-secondary:   transparent;
   --bg-card:        rgba(255, 255, 255, 0.7);
   --bg-card-hover:  rgba(255, 255, 255, 0.9);
@@ -127,16 +129,17 @@
   padding: 0;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background-color: var(--bg-solid); }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-solid);
   color: var(--text-primary);
   line-height: 1.6;
   font-size: 14px;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* ── App Layout ──────────────────────────────────── */
@@ -299,6 +302,8 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* ── Topbar ──────────────────────────────────────── */
