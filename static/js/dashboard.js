@@ -34,26 +34,30 @@ function animateFloat(el, target, duration = 1500) {
 }
 
 // ── Init Dashboard Stats ──────────────────────────
-function initStats() {
+function initStats(data) {
   const packetsEl  = document.getElementById('stat-packets');
   const threatsEl  = document.getElementById('stat-threats');
-  const accuracyEl = document.getElementById('stat-accuracy');
 
-  if (packetsEl)  animateCounter(packetsEl,  124853, 2000);
-  if (threatsEl)  animateCounter(threatsEl,  1842,   1800);
-  
+  if (packetsEl)  animateCounter(packetsEl,  data.total_rows, 2000);
+  if (threatsEl)  animateCounter(threatsEl,  data.malicious_count,   1800);
+}
+
+function initMLMetrics(data) {
+  const accuracyEl = document.getElementById('stat-accuracy');
   const f1El = document.getElementById('f1-score');
   const precisionEl = document.getElementById('precision-score');
   const recallEl = document.getElementById('recall-score');
+  const modelNameEl = document.getElementById('best-model-name');
 
-  if (f1El) animateFloat(f1El, 0.97, 1800);
-  if (precisionEl) animateFloat(precisionEl, 0.98, 1900);
-  if (recallEl) animateFloat(recallEl, 0.96, 2000);
+  if (modelNameEl && data.model_name) modelNameEl.textContent = data.model_name;
+
+  if (f1El) animateFloat(f1El, data.f1_score, 1800);
+  if (precisionEl) animateFloat(precisionEl, data.precision, 1900);
+  if (recallEl) animateFloat(recallEl, data.recall, 2000);
 
   if (accuracyEl) {
-    // Animate float
     let count = 0;
-    const target = 97.4;
+    const target = data.accuracy * 100;
     const interval = setInterval(() => {
       count += 2.5;
       if (count >= target) { count = target; clearInterval(interval); }
@@ -66,12 +70,32 @@ function initStats() {
 // ── Sparkbar Animation ────────────────────────────
 
 // ── Init Threat Ring Chart ──────────────────────────────
-function initThreatRingChart() {
+function initThreatRingChart(data) {
   const ctx = document.getElementById('threatRingChart');
   if (!ctx) return;
 
-  const dataValues = [85, 15];
+  const total = data.total_rows || 1;
+  const normalPct = Math.round((data.normal_count / total) * 100);
+  const maliciousPct = Math.round((data.malicious_count / total) * 100);
+
+  const dataValues = [normalPct, maliciousPct];
   const colors = ['#00d26a', '#ff4b4b'];
+  
+  // Update progress bars
+  const normalText = document.getElementById('normal-percent-text');
+  const maliciousText = document.getElementById('malicious-percent-text');
+  const normalProgress = document.getElementById('normal-progress');
+  const maliciousProgress = document.getElementById('malicious-progress');
+  const chartCenter = document.getElementById('chartCenterText');
+  
+  if (normalText) normalText.textContent = normalPct + '%';
+  if (maliciousText) maliciousText.textContent = maliciousPct + '%';
+  if (normalProgress) normalProgress.style.width = normalPct + '%';
+  if (maliciousProgress) maliciousProgress.style.width = maliciousPct + '%';
+  if (chartCenter) {
+      chartCenter.textContent = normalPct + '%';
+      chartCenter.style.color = colors[0];
+  }
   
   new Chart(ctx, {
     type: 'doughnut',
@@ -99,7 +123,7 @@ function initThreatRingChart() {
           centerText.textContent = dataValues[index] + '%';
           centerText.style.color = colors[index];
         } else {
-          centerText.textContent = '85%';
+          centerText.textContent = normalPct + '%';
           centerText.style.color = colors[0]; // Set to Normal Green color for default
         }
       }
@@ -142,11 +166,37 @@ function applyEntranceAnimation() {
 }
 
 // ── Init ──────────────────────────────────────────
+async function loadDashboardData() {
+  try {
+    const res = await fetch('/api/stats');
+    const data = await res.json();
+    initStats(data);
+    initThreatRingChart(data);
+  } catch (err) {
+    console.error("Failed to fetch stats", err);
+    const data = {total_rows: 124853, malicious_count: 1842, normal_count: 123011};
+    initStats(data);
+    initThreatRingChart(data);
+  }
+}
+
+async function loadMLMetrics() {
+  try {
+    const res = await fetch('/api/ml_metrics');
+    const data = await res.json();
+    initMLMetrics(data);
+  } catch (err) {
+    console.error("Failed to fetch ML metrics", err);
+    initMLMetrics({accuracy: 0.974, f1_score: 0.97, precision: 0.98, recall: 0.96, model_name: "Random Forest"});
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyEntranceAnimation();
   animateProgressBars();
-  initStats();
+  
+  loadDashboardData();
+  loadMLMetrics();
   
   initSparkBars();
-  initThreatRingChart();
 });

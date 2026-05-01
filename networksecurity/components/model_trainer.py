@@ -118,6 +118,18 @@ class ModelTrainer:
         save_object("final_model/model.pkl", best_model)
         save_object("final_model/preprocessor.pkl", preprocessor)
 
+        # Save metrics for dashboard
+        import json
+        metrics_dict = {
+            "model_name": best_model_name,
+            "accuracy": best_model_score,
+            "f1_score": classification_test_metric.f1_score,
+            "precision": classification_test_metric.precision_score,
+            "recall": classification_test_metric.recall_score
+        }
+        with open("final_model/latest_metrics.json", "w") as f:
+            json.dump(metrics_dict, f)
+
  
         ## Model Trainer Artifact
         model_trainer_artifact=ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path,

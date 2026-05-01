@@ -291,21 +291,21 @@
 
         <div class="metric-row">
           <span class="metric-label">Normal Traffic</span>
-          <span class="metric-val text-green">85%</span>
+          <span class="metric-val text-green" id="normal-percent-text">85%</span>
         </div>
         <div style="margin: 6px 0 14px;">
           <div class="progress-bar-wrap">
-            <div class="progress-bar-fill green" style="width: 85%;"></div>
+            <div class="progress-bar-fill green" id="normal-progress" style="width: 85%;"></div>
           </div>
         </div>
 
         <div class="metric-row">
           <span class="metric-label">Malicious Traffic</span>
-          <span class="metric-val text-red">15%</span>
+          <span class="metric-val text-red" id="malicious-percent-text">15%</span>
         </div>
         <div style="margin: 6px 0 20px;">
           <div class="progress-bar-wrap">
-            <div class="progress-bar-fill red" style="width: 15%;"></div>
+            <div class="progress-bar-fill red" id="malicious-progress" style="width: 15%;"></div>
           </div>
         </div>
         <div style="margin-top: var(--space-md);">
@@ -416,5 +416,5 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/static/js/dashboard.js?v=8"></script>
+<script src="/static/js/dashboard.js?v=10"></script>
 {% endblock %}
