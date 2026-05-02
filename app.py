@@ -192,6 +192,9 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
             if col in df.columns:
                 df = df.drop(columns=[col])
             
+        # Sort columns alphabetically to match the new training deterministic pipeline
+        df = df[sorted(df.columns)]
+        
         preprocessor = load_object("final_model/preprocessor.pkl")
         final_model = load_object("final_model/model.pkl")
         network_model = NetworkModel(preprocessor=preprocessor, model=final_model)
