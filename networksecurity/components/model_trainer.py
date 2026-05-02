@@ -56,11 +56,11 @@ class ModelTrainer:
         
     def train_model(self,X_train,y_train,x_test,y_test):    
         models = {
-                "Random Forest": RandomForestClassifier(n_jobs=1),
-                "Decision Tree": DecisionTreeClassifier(),
-                "Gradient Boosting": GradientBoostingClassifier(),
-                "Logistic Regression": LogisticRegression(max_iter=500),
-                "AdaBoost": AdaBoostClassifier(),
+                "Random Forest": RandomForestClassifier(n_jobs=1, random_state=42),
+                "Decision Tree": DecisionTreeClassifier(random_state=42),
+                "Gradient Boosting": GradientBoostingClassifier(random_state=42),
+                "Logistic Regression": LogisticRegression(max_iter=500, random_state=42),
+                "AdaBoost": AdaBoostClassifier(random_state=42),
             }
         params={
             "Decision Tree": {

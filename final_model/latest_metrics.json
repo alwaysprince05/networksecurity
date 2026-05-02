@@ -1,1 +1,1 @@
-{"model_name": "Random Forest", "accuracy": 0.9843962008141113, "f1_score": 0.9860408658709285, "precision": 0.9838514331853048, "recall": 0.9882400648824007}
+{"model_name": "Random Forest", "accuracy": 0.9812302125734962, "f1_score": 0.9831949787406358, "precision": 0.9802180056519983, "recall": 0.9861900893582454}
