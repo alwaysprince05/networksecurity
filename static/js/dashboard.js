@@ -21,13 +21,13 @@ function animateCounter(el, target, duration = 1500, suffix = '') {
 }
 
 
-function animateFloat(el, target, duration = 1500) {
+function animateFloat(el, target, duration = 1500, decimals = 4) {
   const startTime = performance.now();
   function update(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = (target * eased).toFixed(2);
+    el.textContent = (target * eased).toFixed(decimals);
     if (progress < 1) requestAnimationFrame(update);
   }
   requestAnimationFrame(update);
