@@ -40,6 +40,8 @@ class DataIngestion:
             if "_id" in df.columns.to_list():
                 df=df.drop(columns=["_id"],axis=1)
             
+            # Sort the columns alphabetically first to guarantee identical column order
+            df = df[sorted(df.columns)]
             # Sort the dataframe to guarantee identical row order across different machines
             df = df.sort_values(by=df.columns.tolist()).reset_index(drop=True)
             

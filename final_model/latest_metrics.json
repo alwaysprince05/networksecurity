@@ -1,1 +1,1 @@
-{"model_name": "Random Forest", "accuracy": 0.9868837630031659, "f1_score": 0.9883440514469454, "precision": 0.9859663191659984, "recall": 0.9907332796132151}
+{"model_name": "Decision Tree", "accuracy": 0.9859791949344188, "f1_score": 0.987362413371382, "precision": 0.9861563517915309, "recall": 0.9885714285714285}

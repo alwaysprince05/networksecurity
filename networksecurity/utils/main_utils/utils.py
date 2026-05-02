@@ -96,13 +96,11 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
             para  = param[list(models.keys())[i]]
 
             if para:  # Only search if params exist (skip LogisticRegression etc.)
-                gs = RandomizedSearchCV(
+                gs = GridSearchCV(
                     estimator=model,
-                    param_distributions=para,
-                    n_iter=10,        # Try 10 random combos instead of ALL
+                    param_grid=para,
                     cv=3,             # 3-fold cross-validation
                     n_jobs=1,         # Changed from -1 to avoid OOM on low-memory servers (e.g. EC2 t2.micro)
-                    random_state=42,
                     verbose=0,        # No stdout spam
                 )
                 gs.fit(X_train, y_train)
