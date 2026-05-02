@@ -217,15 +217,17 @@ async def predict_route(request: Request, file: UploadFile = File(...)):
         normal_count = int((df["predicted_column"] == 1).sum())
         total_rows = len(df)
         
-        # Save latest stats for dashboard
-        import json
-        stats = {
-            "total_rows": total_rows,
-            "malicious_count": malicious_count,
-            "normal_count": normal_count
-        }
-        with open("prediction_output/latest_stats.json", "w") as f:
-            json.dump(stats, f)
+        # Save latest stats for dashboard to MongoDB
+        stats_collection = database["prediction_stats"]
+        stats_collection.update_one(
+            {"_id": "latest"},
+            {"$set": {
+                "total_rows": total_rows,
+                "malicious_count": malicious_count,
+                "normal_count": normal_count
+            }},
+            upsert=True
+        )
 
         return templates.TemplateResponse(
             request,
@@ -250,11 +252,25 @@ async def api_status():
 
 @app.get("/api/stats", tags=["API"])
 async def get_stats():
+    try:
+        stats_collection = database["prediction_stats"]
+        doc = stats_collection.find_one({"_id": "latest"})
+        if doc:
+            return JSONResponse(content={
+                "total_rows": doc.get("total_rows", 0),
+                "malicious_count": doc.get("malicious_count", 0),
+                "normal_count": doc.get("normal_count", 0)
+            })
+    except Exception as e:
+        pass
+    
+    # Fallback to local file if MongoDB is unreachable
     import json
     stats_file = "prediction_output/latest_stats.json"
     if os.path.exists(stats_file):
         with open(stats_file, "r") as f:
             return JSONResponse(content=json.load(f))
+            
     return JSONResponse(content={"total_rows": 124853, "malicious_count": 1842, "normal_count": 123011})
 
 @app.get("/api/ml_metrics", tags=["API"])
