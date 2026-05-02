@@ -14,7 +14,6 @@ mlflow.db
 Network_Data/
 prediction_output/
 valid_data/
-final_model/
 
 # Mac OS
 .DS_Store
